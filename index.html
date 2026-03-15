@@ -28,24 +28,21 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 .screen.hidden { display:none; }
 #home { background:var(--cream); }
 .home-header {
-  background:var(--dark-brown); padding:28px 24px 16px;
+  background:var(--dark-brown); padding:14px 20px 12px;
   flex-shrink:0; position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
 }
 .home-header::before {
-  content:''; position:absolute; top:-80px; right:-80px;
-  width:300px; height:300px; border-radius:50%;
+  content:''; position:absolute; top:-60px; right:-60px;
+  width:200px; height:200px; border-radius:50%;
   background:radial-gradient(circle, rgba(193,59,24,0.35) 0%, transparent 65%);
 }
-.home-header::after {
-  content:''; position:absolute; bottom:-60px; left:-40px;
-  width:220px; height:220px; border-radius:50%;
-  background:radial-gradient(circle, rgba(201,150,42,0.18) 0%, transparent 65%);
-}
-.eyebrow { font-size:9px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
-.home-title { font-family:var(--font-display); font-size:clamp(26px,5vw,44px); font-weight:900; line-height:1.0; color:#FDFAF5; }
+.home-header::after { display:none; }
+.eyebrow { display:none; }
+.home-title { font-family:var(--font-display); font-size:clamp(20px,4vw,30px); font-weight:900; line-height:1.0; color:#FDFAF5; white-space:nowrap; }
 .home-title em { font-style:italic; color:#E86B40; }
-.home-meta { font-size:12px; color:rgba(253,250,245,0.45); font-weight:300; margin-top:6px; display:flex; align-items:center; gap:8px; }
-.home-meta span { width:3px; height:3px; border-radius:50%; background:rgba(253,250,245,0.3); display:inline-block; }
+.home-meta { font-size:11px; color:rgba(253,250,245,0.45); font-weight:300; display:flex; flex-direction:column; align-items:flex-end; gap:2px; text-align:right; }
+.home-meta span { display:none; }
 .filter-bar { display:flex; gap:8px; padding:10px 14px 4px; overflow-x:auto; flex-shrink:0; scrollbar-width:none; }
 .filter-bar::-webkit-scrollbar { display:none; }
 .filter-pill { padding:7px 16px; border-radius:50px; border:1.5px solid var(--border); font-size:12px; font-weight:500; color:#7A7060; background:white; white-space:nowrap; cursor:pointer; transition:all 0.18s; flex-shrink:0; }
@@ -98,7 +95,7 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 .step-num { width:34px; height:34px; border-radius:50%; background:var(--dark-brown); color:white; font-family:var(--font-display); font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
 .step-label { font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--rust); margin-bottom:5px; }
 .step-text { font-size:14px; line-height:1.7; color:#504840; }
-.step-img { width:100%; border-radius:12px; margin-top:12px; display:block; }
+.step-img { width:100%; max-height:160px; object-fit:cover; border-radius:12px; margin-top:10px; display:block; }
 .no-steps { border:1.5px dashed #D4C8BC; border-radius:14px; padding:28px 20px; text-align:center; color:#A09880; font-size:14px; line-height:1.7; background:rgba(212,200,188,0.12); }
 .cook-cta { position:sticky; bottom:0; padding:14px 20px calc(14px + env(safe-area-inset-bottom)); background:white; border-top:1px solid var(--border); }
 .cook-cta button { width:100%; padding:17px; background:var(--dark-brown); color:white; border:none; border-radius:14px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s; }
@@ -125,6 +122,19 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 .done-h { font-family:var(--font-display); font-size:38px; font-weight:900; color:white; margin-bottom:10px; }
 .done-p { font-size:15px; color:rgba(255,255,255,0.5); line-height:1.6; margin-bottom:36px; }
 .done-back { background:var(--rust); border:none; border-radius:14px; color:white; font-family:var(--font-body); font-size:15px; font-weight:600; padding:17px 36px; cursor:pointer; }
+
+/* ── IMAGE FALLBACKS ── */
+.card-img[data-fallback="true"], .detail-hero img[data-fallback="true"] { display:none; }
+.img-placeholder { width:100%; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; font-size:36px; flex-shrink:0; }
+.recipe-card.wide .img-placeholder { aspect-ratio:unset; height:100%; }
+.cat-Beef .img-placeholder      { background:linear-gradient(135deg,#3D1A0E,#6B2D1A); }
+.cat-Chicken .img-placeholder   { background:linear-gradient(135deg,#1A2E0E,#3B5C1A); }
+.cat-Pork .img-placeholder      { background:linear-gradient(135deg,#2E1A2E,#5C3A5C); }
+.cat-Seafood .img-placeholder   { background:linear-gradient(135deg,#0E1A2E,#1A3B5C); }
+.cat-Turkey .img-placeholder    { background:linear-gradient(135deg,#2E2210,#6B521A); }
+.cat-Vegetarian .img-placeholder{ background:linear-gradient(135deg,#0E2E1A,#1A5C3B); }
+.cat-Pasta .img-placeholder     { background:linear-gradient(135deg,#2E1A0E,#8B5E3C); }
+.cat-Sides .img-placeholder     { background:linear-gradient(135deg,#1A1A2E,#3A3A6B); }
 </style>
 </head>
 <body>
@@ -143,7 +153,7 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 <!-- DETAIL -->
 <div id="detail" class="screen hidden">
   <div class="detail-hero">
-    <img id="d-img" src="" alt="">
+    <img id="d-img" src="" alt="" onerror="this.style.display='none'">
     <div class="detail-hero-overlay"></div>
     <button class="back-btn" onclick="goHome()">← Back</button>
     <div class="detail-hero-text">
@@ -674,7 +684,9 @@ function renderGrid() {
     card.className = 'recipe-card' + (isWide ? ' wide' : '');
     card.onclick = () => openDetail(r.id);
     const pills = [r.time ? `⏱ ${r.time}` : null, r.calories && r.calories !== '—' ? `🔥 ${r.calories}` : null].filter(Boolean);
-    card.innerHTML = `<img class="card-img" src="${r.image}" alt="${r.title}" loading="lazy"><div class="card-body"><div class="card-tag">${r.tag} · ${r.category}</div><div class="card-title">${r.title}</div><div class="card-sub">${r.sub}</div><div class="card-pills">${pills.map(p=>`<span class="card-pill">${p}</span>`).join('')}</div></div>`;
+    const catEmoji = {Beef:'🥩',Chicken:'🍗',Pork:'🐷',Seafood:'🦐',Turkey:'🦃',Vegetarian:'🥗',Pasta:'🍝',Sides:'🥣'}[r.category]||'🍴';
+    card.className += ` cat-${r.category}`;
+    card.innerHTML = `<img class="card-img" src="${r.image}" alt="${r.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="img-placeholder" style="display:none">${catEmoji}</div><div class="card-body"><div class="card-tag">${r.tag} · ${r.category}</div><div class="card-title">${r.title}</div><div class="card-sub">${r.sub}</div><div class="card-pills">${pills.map(p=>`<span class="card-pill">${p}</span>`).join('')}</div></div>`;
     grid.appendChild(card);
   });
 }

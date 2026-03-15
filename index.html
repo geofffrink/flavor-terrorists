@@ -43,26 +43,39 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 .home-title em { font-style:italic; color:#E86B40; }
 .home-meta { font-size:11px; color:rgba(253,250,245,0.45); font-weight:300; display:flex; flex-direction:column; align-items:flex-end; gap:2px; text-align:right; }
 .home-meta span { display:none; }
-.filter-bar { display:flex; gap:8px; padding:10px 14px 4px; overflow-x:auto; flex-shrink:0; scrollbar-width:none; }
-.filter-bar::-webkit-scrollbar { display:none; }
-.filter-pill { padding:7px 16px; border-radius:50px; border:1.5px solid var(--border); font-size:12px; font-weight:500; color:#7A7060; background:white; white-space:nowrap; cursor:pointer; transition:all 0.18s; flex-shrink:0; }
-.filter-pill.active { background:var(--dark-brown); border-color:var(--dark-brown); color:white; }
-.recipe-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:14px 14px 40px; }
-.recipe-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
-.recipe-card { background:white; border-radius:18px; overflow:hidden; cursor:pointer; box-shadow:var(--card-shadow); transition:transform 0.18s; -webkit-user-select:none; }
+.tab-bar { display:flex; background:white; border-bottom:1px solid var(--border); flex-shrink:0; }
+.tab-bar-btn { flex:1; padding:11px 8px; border:none; background:none; font-family:var(--font-body); font-size:13px; font-weight:500; color:#9A9080; cursor:pointer; border-bottom:2.5px solid transparent; transition:all 0.2s; }
+.tab-bar-btn.active { color:var(--rust); border-bottom-color:var(--rust); font-weight:600; }
+.cook-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:600; color:var(--rust); background:rgba(193,59,24,0.08); border-radius:50px; padding:2px 6px; margin-top:4px; }
+.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 30px; text-align:center; color:#A09880; gap:12px; }
+.empty-state .es-icon { font-size:52px; }
+.empty-state .es-title { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--charcoal); }
+.empty-state .es-sub { font-size:14px; line-height:1.6; }
+.made-it-btn { width:100%; padding:17px; background:var(--rust); color:white; border:none; border-radius:14px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s; }
+.made-it-btn:active { background:#A03010; }
+.cook-cta { position:sticky; bottom:0; padding:10px 20px 10px; background:white; border-top:1px solid var(--border); display:flex; gap:10px; }
+.cook-cta .start-btn { flex:2; padding:17px; background:var(--dark-brown); color:white; border:none; border-radius:14px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s; }
+.cook-cta .start-btn:active { background:var(--rust); }
+.cook-count-display { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(193,59,24,0.07); border-radius:14px; padding:8px; cursor:pointer; border:1.5px solid rgba(193,59,24,0.15); transition:all 0.18s; }
+.cook-count-display:active { background:rgba(193,59,24,0.15); }
+.cook-count-num { font-family:var(--font-display); font-size:22px; font-weight:900; color:var(--rust); line-height:1; }
+.cook-count-lbl { font-size:9px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--rust); opacity:0.7; margin-top:2px; }
+.recipe-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:10px 10px 40px; }
+.recipe-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.recipe-card { background:white; border-radius:12px; overflow:hidden; cursor:pointer; box-shadow:var(--card-shadow); transition:transform 0.18s; -webkit-user-select:none; }
 .recipe-card:active { transform:scale(0.965); }
-.recipe-card.wide { grid-column:1/-1; display:grid; grid-template-columns:45% 1fr; }
-.recipe-card.wide .card-img { aspect-ratio:unset; height:100%; }
-.card-img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; background:#E8E0D4; }
-.card-body { padding:12px 14px 14px; }
-.recipe-card.wide .card-body { padding:18px; display:flex; flex-direction:column; justify-content:center; }
-.card-tag { font-size:9px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--rust); margin-bottom:4px; }
-.card-title { font-family:var(--font-display); font-size:15px; font-weight:700; line-height:1.25; color:var(--charcoal); margin-bottom:4px; }
-.recipe-card.wide .card-title { font-size:20px; }
-.card-sub { font-size:11px; color:#8A8070; line-height:1.4; }
-.recipe-card.wide .card-sub { font-size:12px; }
-.card-pills { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
-.card-pill { font-size:10px; font-weight:500; color:#9A9080; }
+.recipe-card.wide { grid-column:unset; display:block; }
+.recipe-card.wide .card-img { aspect-ratio:4/3; height:auto; }
+.card-img { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; background:#E8E0D4; }
+.card-body { padding:8px 10px 10px; }
+.recipe-card.wide .card-body { padding:10px 12px 12px; }
+.card-tag { font-size:8px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--rust); margin-bottom:2px; }
+.card-title { font-family:var(--font-display); font-size:12px; font-weight:700; line-height:1.2; color:var(--charcoal); margin-bottom:2px; }
+.recipe-card.wide .card-title { font-size:15px; }
+.card-sub { font-size:10px; color:#8A8070; line-height:1.3; }
+.recipe-card.wide .card-sub { font-size:11px; }
+.card-pills { display:flex; gap:6px; margin-top:4px; flex-wrap:wrap; }
+.card-pill { font-size:9px; font-weight:500; color:#9A9080; }
 #detail { background:var(--warm-white); }
 .detail-hero { position:relative; height:300px; flex-shrink:0; overflow:hidden; }
 .detail-hero img { width:100%; height:100%; object-fit:cover; display:block; }
@@ -125,7 +138,7 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 
 /* ── IMAGE FALLBACKS ── */
 .card-img[data-fallback="true"], .detail-hero img[data-fallback="true"] { display:none; }
-.img-placeholder { width:100%; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; font-size:36px; flex-shrink:0; }
+.img-placeholder { width:100%; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
 .recipe-card.wide .img-placeholder { aspect-ratio:unset; height:100%; }
 .cat-Beef .img-placeholder      { background:linear-gradient(135deg,#3D1A0E,#6B2D1A); }
 .cat-Chicken .img-placeholder   { background:linear-gradient(135deg,#1A2E0E,#3B5C1A); }
@@ -146,7 +159,11 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
     <h1 class="home-title">The Flavor<br><em>Terrorists</em></h1>
     <div class="home-meta"><span id="recipe-count-label">13 recipes</span><span></span>Geoff &amp; Emily</div>
   </div>
-  <div class="filter-bar" id="filter-bar"></div>
+  <div class="tab-bar">
+    <button class="tab-bar-btn active" onclick="setTab('all',this)">🍽 All</button>
+    <button class="tab-bar-btn" onclick="setTab('favorites',this)">⭐ Favorites</button>
+    <button class="tab-bar-btn" onclick="setTab('explore',this)">🔍 Explore</button>
+  </div>
   <div class="recipe-scroll"><div class="recipe-grid" id="recipe-grid"></div></div>
 </div>
 
@@ -171,7 +188,13 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
     <div id="tab-ingredients" class="tab-panel active"></div>
     <div id="tab-steps" class="tab-panel"></div>
   </div>
-  <div class="cook-cta"><button onclick="startCooking()">🍳 &nbsp;Start Cooking Mode</button></div>
+  <div class="cook-cta">
+    <div class="cook-count-display" onclick="incrementCook()" id="cook-count-display">
+      <span class="cook-count-num" id="cook-count-num">0</span>
+      <span class="cook-count-lbl">times made</span>
+    </div>
+    <button class="start-btn" onclick="startCooking()">🍳 &nbsp;Start Cooking</button>
+  </div>
 </div>
 
 <!-- COOKING -->
@@ -657,18 +680,21 @@ const RECIPES = [
     ]},
 ];
 
-let current = null, cookStep = 0, activeFilter = 'All';
-const CATS = ['All','Beef','Chicken','Pork','Seafood','Turkey','Vegetarian','Pasta','Sides'];
+let current = null, cookStep = 0, activeTab = 'all';
+// tabs: all | favorites | explore
 
-function buildHome() {
-  const fb = document.getElementById('filter-bar');
-  fb.innerHTML = CATS.map(c => `<button class="filter-pill${c==='All'?' active':''}" onclick="setFilter('${c}',this)">${c}</button>`).join('');
-  renderGrid();
+function getCooks(id) {
+  return parseInt(localStorage.getItem('cooks_'+id)||'0');
+}
+function setCooks(id, n) {
+  localStorage.setItem('cooks_'+id, n);
 }
 
-function setFilter(cat, btn) {
-  activeFilter = cat;
-  document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+function buildHome() { renderGrid(); }
+
+function setTab(tab, btn) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-bar-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderGrid();
 }
@@ -711,6 +737,7 @@ function openDetail(id) {
     ? `<div class="no-steps">🍴 Cooking steps coming soon — we'll add these as we build out the cookbook!</div>`
     : r.steps.map((s,i)=>`<div class="step-row"><div class="step-num">${i+1}</div><div><div class="step-label">${s.title}</div><div class="step-text">${s.text}</div>${s.img?`<img class="step-img" src="${s.img}" alt="${s.title}" loading="lazy">`:''}  </div></div>`).join('');
   switchTab('ingredients', document.querySelector('.tab-btn'));
+  updateCookCountDisplay();
   show('detail');
   document.querySelector('#detail .detail-body').scrollTop = 0;
 }
@@ -723,7 +750,26 @@ function switchTab(name, btn) {
   document.getElementById('tab-'+name).classList.add('active');
 }
 
-function goHome() { show('home'); }
+function updateCookCountDisplay() {
+  if (!current) return;
+  const n = getCooks(current.id);
+  document.getElementById('cook-count-num').textContent = n;
+}
+
+function incrementCook() {
+  if (!current) return;
+  const n = getCooks(current.id) + 1;
+  setCooks(current.id, n);
+  updateCookCountDisplay();
+  // pulse animation
+  const el = document.getElementById('cook-count-num');
+  el.style.transform = 'scale(1.4)';
+  el.style.transition = 'transform 0.15s';
+  setTimeout(() => { el.style.transform = 'scale(1)'; }, 200);
+  renderGrid();
+}
+
+function goHome() { show('home'); renderGrid(); }
 
 function startCooking() {
   if (!current?.steps?.length) { alert("No cooking steps yet for this recipe — coming soon!"); return; }

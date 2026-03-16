@@ -53,16 +53,16 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 .empty-state .es-sub { font-size:14px; line-height:1.6; }
 .made-it-btn { width:100%; padding:17px; background:var(--rust); color:white; border:none; border-radius:14px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s; }
 .made-it-btn:active { background:#A03010; }
-.cook-cta { position:sticky; bottom:0; padding:12px 16px; background:white; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:10px; }
-.cook-cta .start-btn { width:100%; padding:15px; background:var(--dark-brown); color:white; border:none; border-radius:12px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s; }
+.cook-cta { position:sticky; bottom:0; padding:10px 16px 12px; background:white; border-top:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.cook-cta .start-btn { flex:1; padding:15px; background:var(--dark-brown); color:white; border:none; border-radius:12px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s; }
 .cook-cta .start-btn:active { background:var(--rust); }
-.cook-count-display { width:100%; display:flex; align-items:center; justify-content:space-between; background:rgba(193,59,24,0.06); border-radius:12px; padding:10px 16px; border:1.5px solid rgba(193,59,24,0.15); }
+.cook-count-display { display:flex; align-items:center; gap:10px; flex-shrink:0; }
 .cook-count-label-group { display:flex; flex-direction:column; }
-.cook-count-lbl { font-size:9px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--rust); opacity:0.7; }
+.cook-count-lbl { font-size:8px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--rust); opacity:0.7; }
 .cook-count-num { font-family:var(--font-display); font-size:22px; font-weight:900; color:var(--rust); line-height:1.1; }
 .cook-count-inner { display:flex; flex-direction:column; align-items:center; }
-.cook-adj-buttons { display:flex; align-items:center; gap:12px; }
-.cook-adj-btn { width:36px; height:36px; border-radius:50%; border:none; font-size:20px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
+.cook-adj-buttons { display:flex; align-items:center; gap:6px; }
+.cook-adj-btn { width:32px; height:32px; border-radius:50%; border:none; font-size:18px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
 .cook-adj-btn.minus { background:rgba(193,59,24,0.12); color:var(--rust); }
 .cook-adj-btn.minus:active { background:rgba(193,59,24,0.3); transform:scale(0.9); }
 .cook-adj-btn.plus { background:var(--rust); color:white; }

@@ -320,6 +320,106 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 @media (min-width: 1101px) {
   .recipe-grid { grid-template-columns: repeat(6, 1fr); gap:8px; }
 }
+
+/* ── MOOD PAGE ── */
+#mood {
+  background:var(--dark-brown);
+  display:flex; flex-direction:column;
+  position:relative; overflow:hidden;
+}
+#mood::before {
+  content:''; position:absolute; top:-100px; right:-100px;
+  width:400px; height:400px; border-radius:50%;
+  background:radial-gradient(circle, rgba(193,59,24,0.35) 0%, transparent 65%);
+  pointer-events:none;
+}
+.mood-header {
+  padding:28px 24px 16px; flex-shrink:0; position:relative; z-index:1;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.mood-back {
+  background:rgba(255,255,255,0.1); border:none; border-radius:50px;
+  color:rgba(255,255,255,0.75); font-family:var(--font-body);
+  font-size:13px; font-weight:500; padding:8px 14px; cursor:pointer;
+}
+.mood-question {
+  font-family:var(--font-display); font-size:clamp(22px,4vw,34px);
+  font-weight:900; color:white; line-height:1.15;
+  padding:0 24px 20px; position:relative; z-index:1; flex-shrink:0;
+}
+.mood-question em { font-style:italic; color:#E86B40; }
+.mood-grid {
+  flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:8px 16px 24px; display:grid;
+  grid-template-columns:repeat(3,1fr); gap:10px;
+  position:relative; z-index:1;
+  align-content:start;
+}
+.mood-tile {
+  background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.1);
+  border-radius:16px; padding:18px 10px 14px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; cursor:pointer; transition:all 0.18s; -webkit-user-select:none;
+  text-align:center;
+}
+.mood-tile:active { transform:scale(0.95); background:rgba(255,255,255,0.13); }
+.mood-tile.special { background:rgba(193,59,24,0.25); border-color:rgba(193,59,24,0.5); }
+.mood-tile.wildcard { background:rgba(201,150,42,0.2); border-color:rgba(201,150,42,0.45); }
+.mood-tile.everything { grid-column:1/-1; flex-direction:row; gap:12px; padding:14px 20px; background:rgba(255,255,255,0.05); }
+.mood-emoji { font-size:36px; line-height:1; }
+.mood-tile.everything .mood-emoji { font-size:28px; }
+.mood-label { font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.2px; }
+.mood-tile.everything .mood-label { font-size:14px; }
+.mood-count { font-size:10px; color:rgba(255,255,255,0.4); }
+
+/* ── WILDCARD MODAL ── */
+.wildcard-modal {
+  position:fixed; inset:0; background:rgba(0,0,0,0.75);
+  display:flex; align-items:flex-end; justify-content:center;
+  z-index:200; padding:0;
+}
+.wildcard-modal.hidden { display:none !important; }
+.wildcard-sheet {
+  background:var(--warm-white); border-radius:24px 24px 0 0;
+  width:100%; max-width:600px; padding:28px 24px 36px;
+  display:flex; flex-direction:column; gap:16px;
+}
+.wc-handle { width:40px; height:4px; background:#D4C8BC; border-radius:2px; margin:0 auto 8px; }
+.wc-tag { font-size:9px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--gold); }
+.wc-title { font-family:var(--font-display); font-size:24px; font-weight:900; color:var(--charcoal); line-height:1.15; }
+.wc-source { font-size:12px; color:#8A8070; }
+.wc-desc { font-size:14px; color:#504840; line-height:1.6; }
+.wc-img { width:100%; height:180px; object-fit:cover; border-radius:14px; display:block; }
+.wc-actions { display:flex; gap:10px; }
+.wc-view-btn {
+  flex:2; padding:15px; background:var(--dark-brown); color:white;
+  border:none; border-radius:12px; font-family:var(--font-body);
+  font-size:14px; font-weight:600; cursor:pointer; text-align:center; text-decoration:none;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.wc-next-btn {
+  flex:1; padding:15px; background:rgba(193,59,24,0.1); color:var(--rust);
+  border:1.5px solid rgba(193,59,24,0.25); border-radius:12px;
+  font-family:var(--font-body); font-size:14px; font-weight:600; cursor:pointer;
+}
+.wc-close-btn {
+  padding:14px; background:none; color:#9A9080; border:1.5px solid var(--border);
+  border-radius:12px; font-family:var(--font-body); font-size:13px;
+  font-weight:500; cursor:pointer; text-align:center;
+}
+
+/* ── TIME FILTER ── */
+.mood-section-label {
+  font-size:9px; font-weight:600; letter-spacing:3px; text-transform:uppercase;
+  color:rgba(255,255,255,0.35); padding:4px 0 2px;
+  grid-column:1/-1;
+}
+.mood-tile.time-tile { padding:14px 10px 12px; }
+.mood-tile.time-tile.selected {
+  background:rgba(201,150,42,0.3); border-color:rgba(201,150,42,0.7);
+}
+.mood-tile.time-tile .mood-emoji { font-size:26px; }
+.mood-tile.time-tile .mood-label { font-size:11px; }
 </style>
 </head>
 <body>
@@ -330,8 +430,101 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
   <div class="cover-title">The Flavor<em>Terrorists</em></div>
   <div class="cover-divider"></div>
   <div class="cover-byline">A cookbook by<br><strong>Geoff &amp; Emily</strong></div>
-  <button class="cover-enter-btn" onclick="enterCookbook()">Let's cause some culinary chaos →</button>
+  <button class="cover-enter-btn" onclick="enterMood()">Let's cause some culinary chaos →</button>
   <div class="cover-recipe-count" id="cover-count"></div>
+</div>
+
+<!-- MOOD -->
+<div id="mood" class="screen hidden">
+  <div class="mood-header">
+    <button class="mood-back" onclick="show('cover');buildHome()">← Back</button>
+  </div>
+  <div class="mood-question">What are we feeling<br><em>tonight?</em></div>
+  <div class="mood-grid">
+    <div class="mood-tile" onclick="filterMood('steak')">
+      <div class="mood-emoji">🥩</div>
+      <div class="mood-label">Steak</div>
+      <div class="mood-count" id="mc-steak"></div>
+    </div>
+    <div class="mood-tile" onclick="filterMood('chicken')">
+      <div class="mood-emoji">🍗</div>
+      <div class="mood-label">Chicken</div>
+      <div class="mood-count" id="mc-chicken"></div>
+    </div>
+    <div class="mood-tile" onclick="filterMood('pork')">
+      <div class="mood-emoji">🐷</div>
+      <div class="mood-label">Pork</div>
+      <div class="mood-count" id="mc-pork"></div>
+    </div>
+    <div class="mood-tile" onclick="filterMood('turkey')">
+      <div class="mood-emoji">🦃</div>
+      <div class="mood-label">Turkey</div>
+      <div class="mood-count" id="mc-turkey"></div>
+    </div>
+    <div class="mood-tile" onclick="filterMood('seafood')">
+      <div class="mood-emoji">🐟</div>
+      <div class="mood-label">Fish & Seafood</div>
+      <div class="mood-count" id="mc-seafood"></div>
+    </div>
+    <div class="mood-tile" onclick="filterMood('pasta')">
+      <div class="mood-emoji">🍝</div>
+      <div class="mood-label">Pasta</div>
+      <div class="mood-count" id="mc-pasta"></div>
+    </div>
+    <div class="mood-tile" onclick="filterMood('veggie')">
+      <div class="mood-emoji">🥗</div>
+      <div class="mood-label">Veggie & Sides</div>
+      <div class="mood-count" id="mc-veggie"></div>
+    </div>
+    <div class="mood-tile special" onclick="surpriseMe()">
+      <div class="mood-emoji">🎲</div>
+      <div class="mood-label">Surprise Me</div>
+      <div class="mood-count">Random pick</div>
+    </div>
+    <div class="mood-tile wildcard" onclick="showWildcard()">
+      <div class="mood-emoji">🃏</div>
+      <div class="mood-label">Wildcard</div>
+      <div class="mood-count">Something new</div>
+    </div>
+    <!-- Time filter -->
+    <div class="mood-section-label">How much time do you have?</div>
+    <div class="mood-tile time-tile" id="time-quick" onclick="selectTime('quick')">
+      <div class="mood-emoji">⚡</div>
+      <div class="mood-label">Quick Cook</div>
+      <div class="mood-count">≤ 30 min</div>
+    </div>
+    <div class="mood-tile time-tile" id="time-medium" onclick="selectTime('medium')">
+      <div class="mood-emoji">🕐</div>
+      <div class="mood-label">Medium Cook</div>
+      <div class="mood-count">30–45 min</div>
+    </div>
+    <div class="mood-tile time-tile" id="time-any" onclick="selectTime('any')">
+      <div class="mood-emoji">😌</div>
+      <div class="mood-label">Don't Care</div>
+      <div class="mood-count">Any length</div>
+    </div>
+    <div class="mood-tile everything" onclick="show('home');renderGrid()">
+      <div class="mood-emoji">📖</div>
+      <div class="mood-label">Show me everything — I'll decide</div>
+    </div>
+  </div>
+</div>
+
+<!-- WILDCARD MODAL -->
+<div id="wildcard-modal" class="wildcard-modal hidden">
+  <div class="wildcard-sheet">
+    <div class="wc-handle"></div>
+    <div class="wc-tag" id="wc-tag"></div>
+    <div class="wc-title" id="wc-title"></div>
+    <div class="wc-source" id="wc-source"></div>
+    <img class="wc-img" id="wc-img" src="" alt="">
+    <div class="wc-desc" id="wc-desc"></div>
+    <div class="wc-actions">
+      <a class="wc-view-btn" id="wc-link" href="" target="_blank">🔗 View Full Recipe</a>
+      <button class="wc-next-btn" onclick="showWildcard()">Next →</button>
+    </div>
+    <button class="wc-close-btn" onclick="closeWildcard()">Close</button>
+  </div>
 </div>
 
 <!-- HOME -->
@@ -866,6 +1059,153 @@ function setCooks(id, n) {
   localStorage.setItem('cooks_'+id, n);
 }
 
+const WILDCARDS = [
+  {title:"Birria Tacos",tag:"Mexican · Beef",desc:"Slow-braised beef in a rich chile broth, served in crispy cheese-fried tortillas with consommé for dipping. A serious weekend project worth every minute.",url:"https://www.seriouseats.com/birria-tacos-recipe",img:"https://images.unsplash.com/photo-1624300629298-e9de39c13be5?w=800&q=80"},
+  {title:"Thai Basil Chicken (Pad Krapow Gai)",tag:"Thai · Chicken",desc:"A 15-minute weeknight warrior — ground chicken stir-fried with holy basil, fish sauce, and oyster sauce, served over rice with a crispy fried egg.",url:"https://www.seriouseats.com/pad-krapow-gai-recipe",img:"https://images.unsplash.com/photo-1562802378-063ec186a863?w=800&q=80"},
+  {title:"Shakshuka",tag:"Middle Eastern · Eggs",desc:"Eggs poached in a spiced tomato and pepper sauce. Dead simple, deeply satisfying, and infinitely riffable with feta, chorizo, or harissa.",url:"https://www.seriouseats.com/shakshuka-recipe",img:"https://images.unsplash.com/photo-1590412200988-a436970781fa?w=800&q=80"},
+  {title:"Korean Bulgogi Bowls",tag:"Korean · Beef",desc:"Thinly sliced beef marinated in soy, sesame, garlic and pear, seared fast and served over steamed rice with kimchi and pickled cucumbers.",url:"https://www.koreanbapsang.com/bulgogi-korean-bbq-beef/",img:"https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=800&q=80"},
+  {title:"Miso Butter Salmon",tag:"Japanese · Seafood",desc:"Salmon glazed with white miso, butter, and mirin — caramelizes into something extraordinary in under 20 minutes. Serve over soba or rice.",url:"https://www.foodnetwork.com/recipes/miso-salmon",img:"https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80"},
+  {title:"Creamy Tuscan White Bean Soup",tag:"Italian · Vegetarian",desc:"Cannellini beans simmered with sun-dried tomatoes, spinach, parmesan, and rosemary into a silky, hearty soup that tastes like it cooked all day.",url:"https://www.halfbakedharvest.com/tuscan-white-bean-soup/",img:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80"},
+  {title:"Carne Asada Street Tacos",tag:"Mexican · Beef",desc:"Flank steak marinated in citrus, garlic, and cumin, charred over high heat and sliced thin. The best tacos you'll make at home.",url:"https://www.isabeleats.com/carne-asada/",img:"https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&q=80"},
+  {title:"Honey Garlic Shrimp",tag:"American · Seafood",desc:"Plump shrimp sautéed in a sticky honey-garlic-butter sauce in under 15 minutes. Serve over rice or pasta — both are incredible.",url:"https://www.saltandlavender.com/honey-garlic-shrimp/",img:"https://images.unsplash.com/photo-1559847844-5315695dadae?w=800&q=80"},
+  {title:"Green Chile Chicken Enchiladas",tag:"Mexican · Chicken",desc:"Shredded chicken rolled in corn tortillas with roasted green chiles and smothered in a tangy tomatillo cream sauce and melted jack cheese.",url:"https://www.halfbakedharvest.com/green-chile-chicken-enchiladas/",img:"https://images.unsplash.com/photo-1618040996337-56904b7850b9?w=800&q=80"},
+  {title:"Sheet Pan Sausage & Vegetables",tag:"American · Pork",desc:"Italian sausage, bell peppers, zucchini, and onions roasted on one pan with herbs and olive oil. 10 minutes of prep, zero cleanup.",url:"https://www.wellplated.com/sheet-pan-sausage-and-vegetables/",img:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=800&q=80"},
+  {title:"Spicy Peanut Noodles",tag:"Asian · Vegetarian",desc:"Cold sesame noodles with a punchy peanut-chili sauce, cucumber, scallions and a drizzle of chili oil. Ready in 20 minutes, eaten in 5.",url:"https://www.bonappetit.com/recipe/cold-sesame-noodles",img:"https://images.unsplash.com/photo-1617093727343-374698b1b08d?w=800&q=80"},
+  {title:"Marry Me Chicken",tag:"Italian · Chicken",desc:"Seared chicken breasts simmered in a sun-dried tomato cream sauce with parmesan and fresh herbs. So good it supposedly inspires proposals.",url:"https://www.delish.com/cooking/recipe-ideas/a25648042/marry-me-chicken-recipe/",img:"https://images.unsplash.com/photo-1632778149955-e80f8ceca2e8?w=800&q=80"},
+  {title:"Smoked Brisket",tag:"BBQ · Beef",desc:"Low and slow over oak or hickory for 12+ hours until fall-apart tender with a thick peppery bark. The pinnacle of backyard cooking.",url:"https://www.seriouseats.com/texas-style-smoked-beef-brisket",img:"https://images.unsplash.com/photo-1544025162-d76538f10f30?w=800&q=80"},
+  {title:"Lobster Bisque",tag:"French · Seafood",desc:"A rich, velvety bisque made from scratch with lobster shells, cream, cognac, and tarragon. Restaurant-quality in your own kitchen.",url:"https://www.spendwithpennies.com/lobster-bisque/",img:"https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=800&q=80"},
+  {title:"Lamb Kofta with Tzatziki",tag:"Middle Eastern · Lamb",desc:"Spiced ground lamb on skewers, grilled until charred outside and juicy within. Served with cool tzatziki and warm flatbread.",url:"https://www.recipetineats.com/kofta-kebabs/",img:"https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=800&q=80"},
+  {title:"Chicken Tikka Masala",tag:"Indian · Chicken",desc:"Charred chicken pieces bathed in a velvety tomato-cream sauce fragrant with garam masala, ginger, and fenugreek. A true crowd-pleaser.",url:"https://www.seriouseats.com/chicken-tikka-masala-recipe",img:"https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800&q=80"},
+  {title:"French Onion Soup",tag:"French · Beef",desc:"Deeply caramelized onions in a rich beef broth, topped with a crouton and blanketed in melted Gruyère. Pure cold-weather comfort.",url:"https://www.seriouseats.com/french-onion-soup-recipe",img:"https://images.unsplash.com/photo-1548943487-a2e4e43b4853?w=800&q=80"},
+  {title:"Carnitas",tag:"Mexican · Pork",desc:"Pork shoulder slow-cooked in lard with orange and spices until meltingly tender, then crisped under the broiler. The ultimate taco filling.",url:"https://www.seriouseats.com/the-best-slow-cooked-carnitas-recipe",img:"https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=800&q=80"},
+  {title:"Miso Ramen",tag:"Japanese · Pork",desc:"A rich miso-based broth with chashu pork belly, soft-boiled eggs, noodles, nori, and corn. Weekend worthy and deeply satisfying.",url:"https://www.seriouseats.com/miso-ramen-recipe",img:"https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=800&q=80"},
+  {title:"Peking-Style Duck Breast",tag:"Chinese · Duck",desc:"Duck breast scored and roasted with a sweet hoisin glaze until the skin crisps like lacquer. Serve with mandarin pancakes and scallions.",url:"https://www.seriouseats.com/peking-duck-recipe",img:"https://images.unsplash.com/photo-1432139555190-58524dae6a55?w=800&q=80"},
+];
+
+let lastWildcard = -1;
+
+function enterMood() {
+  // Reset time selection
+  selectedTime = null;
+  selectedProtein = null;
+  ['quick','medium','any'].forEach(id => {
+    const el = document.getElementById('time-' + id);
+    if (el) el.classList.remove('selected');
+  });
+  // Update mood page recipe counts
+  const moodMap = {
+    'mc-steak':   r => r.category === 'Beef',
+    'mc-chicken': r => r.category === 'Chicken',
+    'mc-pork':    r => r.category === 'Pork',
+    'mc-turkey':  r => r.category === 'Turkey',
+    'mc-seafood': r => r.category === 'Seafood',
+    'mc-pasta':   r => r.category === 'Pasta',
+    'mc-veggie':  r => r.category === 'Vegetarian' || r.category === 'Sides',
+  };
+  Object.entries(moodMap).forEach(([id, fn]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = RECIPES.filter(fn).length + ' recipes';
+  });
+  show('mood');
+}
+
+let selectedTime = null;
+let selectedProtein = null;
+
+function getMinutes(timeStr) {
+  if (!timeStr || timeStr === '—') return 999;
+  // Extract first number found
+  const m = timeStr.match(/(\d+)/);
+  return m ? parseInt(m[1]) : 999;
+}
+
+function selectTime(t) {
+  selectedTime = selectedTime === t ? null : t; // toggle
+  ['quick','medium','any'].forEach(id => {
+    const el = document.getElementById('time-' + id);
+    if (el) el.classList.toggle('selected', selectedTime === id);
+  });
+  // If a protein is already selected, re-filter immediately
+  if (selectedProtein) filterMood(selectedProtein);
+}
+
+function applyTimeFilter(recipes) {
+  if (!selectedTime || selectedTime === 'any') return recipes;
+  return recipes.filter(r => {
+    const mins = getMinutes(r.time);
+    if (selectedTime === 'quick')  return mins <= 30;
+    if (selectedTime === 'medium') return mins > 30 && mins <= 45;
+    return true;
+  });
+}
+
+function renderMoodResults(proteinFn) {
+  show('home');
+  const grid = document.getElementById('recipe-grid');
+  grid.innerHTML = '';
+  let filtered = RECIPES.filter(proteinFn).map(r => ({...r, cooks: getCooks(r.id)}));
+  filtered = applyTimeFilter(filtered).sort((a,b) => b.cooks - a.cooks);
+  document.getElementById('recipe-count-label').textContent = filtered.length + ' recipes';
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">🤷</div><div class="es-title">No matches</div><div class="es-sub">Try a different time filter or protein.</div></div>`;
+    return;
+  }
+  filtered.forEach(r => {
+    const card = document.createElement('div');
+    card.className = `recipe-card cat-${r.category}`;
+    card.onclick = () => openDetail(r.id);
+    const catEmoji = {Beef:'🥩',Chicken:'🍗',Pork:'🐷',Seafood:'🦐',Turkey:'🦃',Vegetarian:'🥗',Pasta:'🍝',Sides:'🥣'}[r.category]||'🍴';
+    const cookBadge = getCardBadge(r.cooks);
+    const hasNote = localStorage.getItem('note_' + r.id);
+    const noteBadge = hasNote ? '<div class="recipe-badge badge-new" style="margin-top:3px">📝 Notes</div>' : '';
+    const pills = [r.time ? `⏱ ${r.time}` : null, r.calories && r.calories !== '—' ? `🔥 ${r.calories}` : null].filter(Boolean);
+    card.innerHTML = `<img class="card-img" src="${r.image}" alt="${r.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="img-placeholder" style="display:none">${catEmoji}</div><div class="card-body"><div class="card-tag">${r.tag} · ${r.category}</div><div class="card-title">${r.title}</div><div class="card-sub">${r.sub}</div>${cookBadge}${noteBadge}<div class="card-pills">${pills.map(p=>`<span class="card-pill">${p}</span>`).join('')}</div></div>`;
+    grid.appendChild(card);
+  });
+}
+
+function filterMood(type) {
+  selectedProtein = type;
+  const filters = {
+    steak:   r => r.category === 'Beef',
+    chicken: r => r.category === 'Chicken',
+    pork:    r => r.category === 'Pork',
+    turkey:  r => r.category === 'Turkey',
+    seafood: r => r.category === 'Seafood',
+    pasta:   r => r.category === 'Pasta',
+    veggie:  r => r.category === 'Vegetarian' || r.category === 'Sides',
+  };
+  const fn = filters[type];
+  if (fn) renderMoodResults(fn);
+}
+
+function surpriseMe() {
+  let pool = applyTimeFilter(RECIPES);
+  if (pool.length === 0) pool = RECIPES;
+  const r = pool[Math.floor(Math.random() * pool.length)];
+  show('home');
+  renderGrid();
+  setTimeout(() => openDetail(r.id), 50);
+}
+
+function showWildcard() {
+  let idx;
+  do { idx = Math.floor(Math.random() * WILDCARDS.length); } while (idx === lastWildcard && WILDCARDS.length > 1);
+  lastWildcard = idx;
+  const w = WILDCARDS[idx];
+  document.getElementById('wc-tag').textContent = w.tag;
+  document.getElementById('wc-title').textContent = w.title;
+  document.getElementById('wc-source').textContent = '🔗 ' + w.url.replace('https://','').split('/')[0];
+  document.getElementById('wc-img').src = w.img;
+  document.getElementById('wc-desc').textContent = w.desc;
+  document.getElementById('wc-link').href = w.url;
+  document.getElementById('wildcard-modal').classList.remove('hidden');
+}
+
+function closeWildcard() {
+  document.getElementById('wildcard-modal').classList.add('hidden');
+}
+
 function enterCookbook() {
   show('home');
   renderGrid();
@@ -1019,7 +1359,7 @@ function adjustCook(delta) {
   renderGrid();
 }
 
-function goHome() { show('home'); renderGrid(); }
+function goHome() { show('mood'); enterMood(); }
 
 function startCooking() {
   if (!current?.steps?.length) { alert("No cooking steps yet for this recipe — coming soon!"); return; }

@@ -163,12 +163,85 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 .cat-Vegetarian .img-placeholder{ background:linear-gradient(135deg,#0E2E1A,#1A5C3B); }
 .cat-Pasta .img-placeholder     { background:linear-gradient(135deg,#2E1A0E,#8B5E3C); }
 .cat-Sides .img-placeholder     { background:linear-gradient(135deg,#1A1A2E,#3A3A6B); }
+
+/* ── COVER PAGE ── */
+#cover {
+  background:var(--dark-brown);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; padding:40px 32px;
+  position:relative; overflow:hidden;
+}
+#cover::before {
+  content:''; position:absolute; top:-120px; right:-120px;
+  width:500px; height:500px; border-radius:50%;
+  background:radial-gradient(circle, rgba(193,59,24,0.4) 0%, transparent 65%);
+  pointer-events:none;
+}
+#cover::after {
+  content:''; position:absolute; bottom:-100px; left:-80px;
+  width:400px; height:400px; border-radius:50%;
+  background:radial-gradient(circle, rgba(201,150,42,0.25) 0%, transparent 65%);
+  pointer-events:none;
+}
+.cover-eyebrow {
+  font-size:10px; font-weight:600; letter-spacing:5px;
+  text-transform:uppercase; color:var(--gold);
+  margin-bottom:24px; position:relative; z-index:1;
+}
+.cover-title {
+  font-family:var(--font-display); font-weight:900;
+  color:#FDFAF5; line-height:1.0; position:relative; z-index:1;
+  font-size:clamp(52px, 12vw, 96px);
+}
+.cover-title em {
+  font-style:italic; color:#E86B40; display:block;
+  font-size:clamp(64px, 15vw, 120px);
+}
+.cover-divider {
+  width:60px; height:2px; background:var(--gold);
+  margin:28px auto; opacity:0.5; position:relative; z-index:1;
+}
+.cover-byline {
+  font-family:var(--font-display); font-style:italic;
+  font-size:clamp(16px, 3vw, 22px); color:rgba(253,250,245,0.6);
+  font-weight:400; position:relative; z-index:1;
+  line-height:1.5;
+}
+.cover-byline strong {
+  color:rgba(253,250,245,0.9); font-style:normal; font-weight:700;
+}
+.cover-enter-btn {
+  margin-top:48px; padding:18px 36px;
+  background:var(--rust); color:white;
+  border:none; border-radius:50px;
+  font-family:var(--font-body); font-size:15px; font-weight:600;
+  cursor:pointer; position:relative; z-index:1;
+  transition:all 0.2s; letter-spacing:0.3px;
+  box-shadow:0 8px 32px rgba(193,59,24,0.4);
+}
+.cover-enter-btn:hover { background:#D94D20; transform:translateY(-2px); box-shadow:0 12px 40px rgba(193,59,24,0.5); }
+.cover-enter-btn:active { transform:scale(0.97); }
+.cover-recipe-count {
+  margin-top:20px; font-size:11px; color:rgba(253,250,245,0.3);
+  font-weight:400; position:relative; z-index:1; letter-spacing:1px;
+}
 </style>
 </head>
 <body>
 
+<!-- COVER -->
+<div id="cover" class="screen">
+  <div class="cover-eyebrow">A Personal Cookbook</div>
+  <div class="cover-title">The Flavor<em>Terrorists</em></div>
+  <div class="cover-divider"></div>
+  <div class="cover-byline">A cookbook by<br><strong>Geoff &amp; Emily</strong></div>
+  <button class="cover-enter-btn" onclick="enterCookbook()">Let's cause some culinary chaos →</button>
+  <div class="cover-recipe-count" id="cover-count"></div>
+</div>
+
 <!-- HOME -->
-<div id="home" class="screen">
+<div id="home" class="screen hidden">
   <div class="home-header">
     <div class="eyebrow">A Personal Cookbook</div>
     <h1 class="home-title">The Flavor<br><em>Terrorists</em></h1>
@@ -690,6 +763,11 @@ function setCooks(id, n) {
   localStorage.setItem('cooks_'+id, n);
 }
 
+function enterCookbook() {
+  show('home');
+  renderGrid();
+}
+
 function buildHome() { renderGrid(); }
 
 function setTab(tab, btn) {
@@ -851,6 +929,7 @@ function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('hidden', s.id !== id));
 }
 
+document.getElementById('cover-count').textContent = RECIPES.length + ' recipes inside';
 buildHome();
 </script>
 </body>

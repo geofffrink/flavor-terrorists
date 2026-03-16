@@ -261,6 +261,65 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 .notes-textarea::placeholder { color:#C0B8AC; }
 .notes-footer { display:flex; align-items:center; justify-content:space-between; padding:0 2px; }
 .notes-saved { font-size:11px; color:#B0A898; font-style:italic; transition:opacity 0.3s; }
+
+/* ── RESPONSIVE ── */
+
+/* iPad portrait (768px) */
+@media (max-width: 900px) {
+  .recipe-grid { grid-template-columns: repeat(4, 1fr); gap:10px; }
+  .cover-title { font-size: clamp(44px, 10vw, 72px); }
+  .cover-title em { font-size: clamp(54px, 13vw, 90px); }
+  .detail-title { font-size: 15px; }
+  .meta-val { font-size: 14px; }
+}
+
+/* iPad mini / small tablet portrait */
+@media (max-width: 680px) {
+  .recipe-grid { grid-template-columns: repeat(3, 1fr); gap:8px; }
+  .home-title { font-size: clamp(18px, 4vw, 26px); }
+  .cover-title { font-size: clamp(38px, 9vw, 60px); }
+  .cover-title em { font-size: clamp(46px, 11vw, 76px); }
+  .cover-enter-btn { font-size: 14px; padding: 16px 28px; }
+  .tab-bar-btn { font-size: 12px; padding: 10px 6px; }
+  .detail-title { font-size: 14px; }
+  .detail-thumb { width: 52px; height: 52px; }
+  .detail-thumb-placeholder { width: 52px; height: 52px; }
+}
+
+/* Phone (480px and below) */
+@media (max-width: 480px) {
+  .recipe-grid { grid-template-columns: repeat(2, 1fr); gap:8px; }
+  .home-header { padding: 12px 14px 10px; }
+  .home-title { font-size: clamp(16px, 4vw, 22px); }
+  .home-meta { font-size: 10px; }
+  .cover-title { font-size: clamp(32px, 10vw, 52px); }
+  .cover-title em { font-size: clamp(40px, 13vw, 66px); }
+  .cover-byline { font-size: 15px; }
+  .cover-enter-btn { font-size: 13px; padding: 14px 22px; margin-top: 32px; }
+  .cover-recipe-count { font-size: 10px; }
+  .filter-bar { padding: 8px 10px 4px; }
+  .tab-bar-btn { font-size: 11px; padding: 9px 4px; }
+  .meta-val { font-size: 13px; }
+  .meta-lbl { font-size: 8px; }
+  .detail-title { font-size: 13px; }
+  .detail-sub { font-size: 10px; }
+  .detail-thumb { width: 44px; height: 44px; border-radius: 8px; }
+  .detail-thumb-placeholder { width: 44px; height: 44px; font-size: 20px; }
+  .back-btn { font-size: 12px; padding: 7px 10px; }
+  .cook-text { font-size: clamp(17px, 4vw, 22px); }
+  .cook-big-num { font-size: 70px; }
+  .notes-textarea { min-height: 200px; }
+}
+
+/* iPad landscape & small laptops — keep 6 col */
+@media (min-width: 901px) and (max-width: 1100px) {
+  .recipe-grid { grid-template-columns: repeat(5, 1fr); gap:9px; }
+}
+
+/* Large screens — full 6 col */
+@media (min-width: 1101px) {
+  .recipe-grid { grid-template-columns: repeat(6, 1fr); gap:8px; }
+}
 </style>
 </head>
 <body>

@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>The Flavor Terrorists</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #F4EFE6;
+  --warm-white: #FDFAF5;
+  --charcoal: #1A1A1A;
+  --dark-brown: #231510;
+  --rust: #C13B18;
+  --gold: #C9962A;
+  --gold-light: #E8B84B;
+  --border: #E0D8CC;
+  --card-shadow: 0 4px 20px rgba(0,0,0,0.10);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; }
+body { font-family:var(--font-body); background:var(--cream); color:var(--charcoal); overscroll-behavior:none; }
+.screen { position:absolute; inset:0; display:flex; flex-direction:column; overflow:hidden; }
+.screen.hidden { display:none; }
+#home { background:var(--cream); }
+.home-header {
+  background:var(--dark-brown); padding:14px 20px 12px;
+  flex-shrink:0; position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.home-header::before {
+  content:''; position:absolute; top:-60px; right:-60px;
+  width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle, rgba(193,59,24,0.35) 0%, transparent 65%);
+}
+.home-header::after { display:none; }
+.eyebrow { display:none; }
+.home-title { font-family:var(--font-display); font-size:clamp(20px,4vw,30px); font-weight:900; line-height:1.0; color:#FDFAF5; white-space:nowrap; }
+.home-title em { font-style:italic; color:#E86B40; }
+.home-meta { font-size:11px; color:rgba(253,250,245,0.45); font-weight:300; display:flex; flex-direction:column; align-items:flex-end; gap:2px; text-align:right; }
+.home-meta span { display:none; }
+.tab-bar { display:flex; background:white; border-bottom:1px solid var(--border); flex-shrink:0; }
+.tab-bar-btn { flex:1; padding:11px 8px; border:none; background:none; font-family:var(--font-body); font-size:13px; font-weight:500; color:#9A9080; cursor:pointer; border-bottom:2.5px solid transparent; transition:all 0.2s; }
+.tab-bar-btn.active { color:var(--rust); border-bottom-color:var(--rust); font-weight:600; }
+.cook-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:600; color:var(--rust); background:rgba(193,59,24,0.08); border-radius:50px; padding:2px 6px; margin-top:4px; }
+.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 30px; text-align:center; color:#A09880; gap:12px; }
+.empty-state .es-icon { font-size:52px; }
+.empty-state .es-title { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--charcoal); }
+.empty-state .es-sub { font-size:14px; line-height:1.6; }
+.made-it-btn { width:100%; padding:17px; background:var(--rust); color:white; border:none; border-radius:14px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s; }
+.made-it-btn:active { background:#A03010; }
+.cook-cta { position:sticky; bottom:0; padding:10px 20px 10px; background:white; border-top:1px solid var(--border); display:flex; gap:10px; }
+.cook-cta .start-btn { flex:2; padding:17px; background:var(--dark-brown); color:white; border:none; border-radius:14px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s; }
+.cook-cta .start-btn:active { background:var(--rust); }
+.cook-count-display { flex:1; display:flex; align-items:center; justify-content:center; gap:10px; background:rgba(193,59,24,0.07); border-radius:14px; padding:10px 8px; border:1.5px solid rgba(193,59,24,0.15); }
+.cook-count-num { font-family:var(--font-display); font-size:24px; font-weight:900; color:var(--rust); line-height:1; min-width:28px; text-align:center; }
+.cook-count-lbl { font-size:9px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--rust); opacity:0.7; margin-top:2px; display:block; }
+.cook-count-inner { display:flex; flex-direction:column; align-items:center; }
+.cook-adj-btn { width:30px; height:30px; border-radius:50%; border:none; font-size:18px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
+.cook-adj-btn.minus { background:rgba(193,59,24,0.12); color:var(--rust); }
+.cook-adj-btn.minus:active { background:rgba(193,59,24,0.3); transform:scale(0.9); }
+.cook-adj-btn.plus { background:var(--rust); color:white; }
+.cook-adj-btn.plus:active { background:#A03010; transform:scale(0.9); }
+.cook-adj-btn:disabled { opacity:0.25; cursor:default; }
+/* ── BADGE SYSTEM ── */
+.recipe-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; border-radius:50px; padding:2px 7px; margin-top:4px; }
+.badge-new     { background:rgba(100,160,100,0.15); color:#3A7A3A; }
+.badge-regular { background:rgba(193,59,24,0.12); color:var(--rust); }
+.badge-fave    { background:rgba(201,150,42,0.18); color:#9A6E10; }
+.badge-legend  { background:linear-gradient(90deg,rgba(201,150,42,0.25),rgba(193,59,24,0.2)); color:#7A4010; border:1px solid rgba(201,150,42,0.4); }
+.recipe-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:10px 10px 40px; }
+.recipe-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+.recipe-card { background:white; border-radius:12px; overflow:hidden; cursor:pointer; box-shadow:var(--card-shadow); transition:transform 0.18s; -webkit-user-select:none; }
+.recipe-card:active { transform:scale(0.965); }
+.recipe-card.wide { grid-column:unset; display:block; }
+.recipe-card.wide .card-img { aspect-ratio:4/3; height:auto; }
+.card-img { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; background:#E8E0D4; }
+.card-body { padding:6px 8px 8px; }
+.recipe-card.wide .card-body { padding:10px 12px 12px; }
+.card-tag { font-size:8px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--rust); margin-bottom:2px; }
+.card-title { font-family:var(--font-display); font-size:11px; font-weight:700; line-height:1.2; color:var(--charcoal); margin-bottom:2px; }
+.recipe-card.wide .card-title { font-size:15px; }
+.card-sub { font-size:9px; color:#8A8070; line-height:1.3; }
+.recipe-card.wide .card-sub { font-size:11px; }
+.card-pills { display:flex; gap:6px; margin-top:4px; flex-wrap:wrap; }
+.card-pill { font-size:9px; font-weight:500; color:#9A9080; }
+#detail { background:var(--warm-white); }
+.detail-hero { position:relative; height:300px; flex-shrink:0; overflow:hidden; }
+.detail-hero img { width:100%; height:100%; object-fit:cover; display:block; }
+.detail-hero-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(22,10,5,0.88) 0%, rgba(22,10,5,0.12) 55%, transparent 100%); }
+.back-btn { position:absolute; top:52px; left:18px; background:rgba(22,10,5,0.55); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:none; border-radius:50px; color:white; font-family:var(--font-body); font-size:13px; font-weight:500; padding:9px 16px 9px 12px; cursor:pointer; display:flex; align-items:center; gap:5px; }
+.detail-hero-text { position:absolute; bottom:22px; left:22px; right:22px; }
+.detail-src { font-size:9px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--gold-light); margin-bottom:7px; }
+.detail-title { font-family:var(--font-display); font-size:26px; font-weight:900; color:white; line-height:1.1; }
+.detail-sub { font-size:13px; color:rgba(255,255,255,0.65); margin-top:4px; font-weight:300; }
+.detail-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.meta-strip { display:flex; background:white; border-bottom:1px solid var(--border); }
+.meta-cell { flex:1; padding:13px 8px; text-align:center; border-right:1px solid var(--border); }
+.meta-cell:last-child { border-right:none; }
+.meta-val { display:block; font-family:var(--font-display); font-size:16px; font-weight:700; color:var(--charcoal); }
+.meta-lbl { display:block; font-size:9px; letter-spacing:1.2px; text-transform:uppercase; color:#A0998A; margin-top:2px; }
+.detail-tabs { display:flex; background:white; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
+.tab-btn { flex:1; padding:14px 8px; border:none; background:none; font-family:var(--font-body); font-size:13px; font-weight:500; color:#9A9080; cursor:pointer; border-bottom:2.5px solid transparent; transition:all 0.2s; }
+.tab-btn.active { color:var(--rust); border-bottom-color:var(--rust); }
+.tab-panel { display:none; padding:20px 20px 24px; }
+.tab-panel.active { display:block; }
+.ing-group-label { font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#B0A898; padding:12px 0 6px; border-bottom:1px solid var(--border); margin-bottom:2px; }
+.ing-group-label:first-child { padding-top:0; }
+.ing-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #F0EAE0; }
+.ing-row:last-child { border-bottom:none; }
+.ing-dot { width:7px; height:7px; border-radius:50%; background:var(--rust); flex-shrink:0; }
+.ing-amt { font-size:13px; font-weight:600; color:var(--rust); min-width:72px; flex-shrink:0; }
+.ing-name { font-size:14px; color:var(--charcoal); }
+.step-row { display:flex; gap:14px; padding-bottom:20px; border-bottom:1px solid var(--border); margin-bottom:20px; }
+.step-row:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.step-num { width:34px; height:34px; border-radius:50%; background:var(--dark-brown); color:white; font-family:var(--font-display); font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.step-label { font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--rust); margin-bottom:5px; }
+.step-text { font-size:14px; line-height:1.7; color:#504840; }
+.step-img { width:100%; max-height:160px; object-fit:cover; border-radius:12px; margin-top:10px; display:block; }
+.no-steps { border:1.5px dashed #D4C8BC; border-radius:14px; padding:28px 20px; text-align:center; color:#A09880; font-size:14px; line-height:1.7; background:rgba(212,200,188,0.12); }
+.cook-cta { position:sticky; bottom:0; padding:14px 20px calc(14px + env(safe-area-inset-bottom)); background:white; border-top:1px solid var(--border); }
+.cook-cta button { width:100%; padding:17px; background:var(--dark-brown); color:white; border:none; border-radius:14px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s; }
+.cook-cta button:active { background:var(--rust); }
+#cooking { background:var(--dark-brown); color:white; }
+.cook-top { padding:52px 24px 14px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.cook-exit { background:rgba(255,255,255,0.1); border:none; border-radius:50px; color:rgba(255,255,255,0.75); font-family:var(--font-body); font-size:13px; font-weight:500; padding:9px 16px; cursor:pointer; }
+.cook-step-counter { font-size:13px; color:rgba(255,255,255,0.45); letter-spacing:1px; }
+.cook-prog-bar { height:2px; background:rgba(255,255,255,0.1); margin:0 24px; border-radius:2px; overflow:hidden; flex-shrink:0; }
+.cook-prog-fill { height:100%; background:var(--gold-light); border-radius:2px; transition:width 0.4s ease; }
+.cook-content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:20px 24px 0; }
+.cook-big-num { font-family:var(--font-display); font-size:90px; font-weight:900; color:rgba(255,255,255,0.06); line-height:1; margin-bottom:-18px; user-select:none; }
+.cook-label { font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:14px; }
+.cook-text { font-family:var(--font-display); font-size:clamp(20px,4vw,28px); font-weight:400; line-height:1.6; color:rgba(255,255,255,0.9); }
+.cook-step-img { width:100%; border-radius:18px; margin-top:22px; max-height:230px; object-fit:cover; display:block; }
+.cook-nav { display:flex; gap:10px; padding:16px 24px calc(16px + env(safe-area-inset-bottom)); flex-shrink:0; }
+.cook-prev, .cook-next { border:none; border-radius:14px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; padding:18px; transition:opacity 0.15s, transform 0.15s; }
+.cook-prev { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); flex:1; }
+.cook-next { background:var(--rust); color:white; flex:2; }
+.cook-prev:active, .cook-next:active { opacity:0.7; transform:scale(0.97); }
+.cook-prev:disabled { opacity:0.25; cursor:default; }
+.cook-done { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 28px; text-align:center; }
+.done-emoji { font-size:68px; margin-bottom:20px; }
+.done-h { font-family:var(--font-display); font-size:38px; font-weight:900; color:white; margin-bottom:10px; }
+.done-p { font-size:15px; color:rgba(255,255,255,0.5); line-height:1.6; margin-bottom:36px; }
+.done-back { background:var(--rust); border:none; border-radius:14px; color:white; font-family:var(--font-body); font-size:15px; font-weight:600; padding:17px 36px; cursor:pointer; }
+
+/* ── IMAGE FALLBACKS ── */
+.card-img[data-fallback="true"], .detail-hero img[data-fallback="true"] { display:none; }
+.img-placeholder { width:100%; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+.recipe-card.wide .img-placeholder { aspect-ratio:unset; height:100%; }
+.cat-Beef .img-placeholder      { background:linear-gradient(135deg,#3D1A0E,#6B2D1A); }
+.cat-Chicken .img-placeholder   { background:linear-gradient(135deg,#1A2E0E,#3B5C1A); }
+.cat-Pork .img-placeholder      { background:linear-gradient(135deg,#2E1A2E,#5C3A5C); }
+.cat-Seafood .img-placeholder   { background:linear-gradient(135deg,#0E1A2E,#1A3B5C); }
+.cat-Turkey .img-placeholder    { background:linear-gradient(135deg,#2E2210,#6B521A); }
+.cat-Vegetarian .img-placeholder{ background:linear-gradient(135deg,#0E2E1A,#1A5C3B); }
+.cat-Pasta .img-placeholder     { background:linear-gradient(135deg,#2E1A0E,#8B5E3C); }
+.cat-Sides .img-placeholder     { background:linear-gradient(135deg,#1A1A2E,#3A3A6B); }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home" class="screen">
+  <div class="home-header">
+    <div class="eyebrow">A Personal Cookbook</div>
+    <h1 class="home-title">The Flavor<br><em>Terrorists</em></h1>
+    <div class="home-meta"><span id="recipe-count-label">13 recipes</span><span></span>Geoff &amp; Emily</div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-bar-btn active" onclick="setTab('all',this)">🍽 All</button>
+    <button class="tab-bar-btn" onclick="setTab('favorites',this)">⭐ Favorites</button>
+    <button class="tab-bar-btn" onclick="setTab('explore',this)">🔍 Explore</button>
+  </div>
+  <div class="recipe-scroll"><div class="recipe-grid" id="recipe-grid"></div></div>
+</div>
+
+<!-- DETAIL -->
+<div id="detail" class="screen hidden">
+  <div class="detail-hero">
+    <img id="d-img" src="" alt="" onerror="this.style.display='none'">
+    <div class="detail-hero-overlay"></div>
+    <button class="back-btn" onclick="goHome()">← Back</button>
+    <div class="detail-hero-text">
+      <div class="detail-src" id="d-src"></div>
+      <div class="detail-title" id="d-title"></div>
+      <div class="detail-sub" id="d-sub"></div>
+    </div>
+  </div>
+  <div class="detail-body">
+    <div class="meta-strip" id="d-meta"></div>
+    <div class="detail-tabs">
+      <button class="tab-btn active" onclick="switchTab('ingredients',this)">Ingredients</button>
+      <button class="tab-btn" onclick="switchTab('steps',this)">Method</button>
+    </div>
+    <div id="tab-ingredients" class="tab-panel active"></div>
+    <div id="tab-steps" class="tab-panel"></div>
+  </div>
+  <div class="cook-cta">
+    <div class="cook-count-display" id="cook-count-display">
+      <button class="cook-adj-btn minus" id="cook-minus" onclick="adjustCook(-1)">−</button>
+      <div class="cook-count-inner">
+        <span class="cook-count-num" id="cook-count-num">0</span>
+        <span class="cook-count-lbl">times made</span>
+      </div>
+      <button class="cook-adj-btn plus" id="cook-plus" onclick="adjustCook(1)">+</button>
+    </div>
+    <button class="start-btn" onclick="startCooking()">🍳 &nbsp;Start Cooking</button>
+  </div>
+</div>
+
+<!-- COOKING -->
+<div id="cooking" class="screen hidden">
+  <div class="cook-top">
+    <button class="cook-exit" onclick="exitCooking()">✕ Exit</button>
+    <span class="cook-step-counter" id="ck-counter"></span>
+  </div>
+  <div class="cook-prog-bar"><div class="cook-prog-fill" id="ck-fill"></div></div>
+  <div class="cook-content" id="ck-content"></div>
+  <div class="cook-nav">
+    <button class="cook-prev" id="ck-prev" onclick="cookNav(-1)">← Prev</button>
+    <button class="cook-next" id="ck-next" onclick="cookNav(1)">Next →</button>
+  </div>
+</div>
+
+<script>
+const RECIPES = [
+  // ── ORIGINAL 13 ──────────────────────────────────────────────────────────
+  {id:'fajitas',tag:'Original',category:'Beef',title:'Fajitas with Grilled Pineapple & Peppers',sub:'Marinated flank steak, charred peppers & caramelized pineapple',image:'https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=800&q=80',time:'45 min + 2–6 hr marinade',difficulty:'Medium',servings:'4–5',calories:'—',
+    ingredientGroups:[
+      {label:'Marinade',items:[{amt:'¼ cup',name:'Worcestershire Sauce'},{amt:'3 cloves',name:'Garlic, minced'},{amt:'¼ cup',name:'Soy Sauce'},{amt:'2 tbsp',name:'Red Wine Vinegar'},{amt:'1 tbsp',name:'Dijon Mustard'}]},
+      {label:'Fajitas',items:[{amt:'1½–2 lbs',name:'Flank Steak'},{amt:'1',name:'Green Bell Pepper, sliced'},{amt:'1',name:'Red Bell Pepper, sliced'},{amt:'1',name:'Yellow Bell Pepper, sliced'},{amt:'1 large',name:'Red Onion, sliced'},{amt:'1 cup',name:'Fresh Pineapple, sliced into strips'},{amt:'8–10',name:'Flour Tortillas'}]}
+    ],
+    steps:[
+      {title:'Marinate the Steak',text:'In a bowl, whisk together Worcestershire sauce, minced garlic, soy sauce, red wine vinegar, and Dijon mustard. Place the flank steak in a shallow dish or zip-top bag and pour the marinade over it. Refrigerate for at least 2 hours, preferably 4–6 hours.',img:null},
+      {title:'Cook the Steak',text:'Heat a cast iron skillet over medium-high heat until very hot. Remove the steak from the marinade and pat dry. Cook for 4–6 minutes per side depending on thickness, until desired doneness. Let rest for 5–10 minutes before slicing thinly against the grain.',img:null},
+      {title:'Sauté the Vegetables',text:'In a large skillet over medium-high heat, cook the sliced peppers and red onion until tender and slightly charred, about 6–8 minutes. Add the pineapple during the last 2–3 minutes to warm and lightly caramelize.',img:null},
+      {title:'Warm the Tortillas',text:'Heat tortillas directly over a gas flame or in a dry skillet until warm and lightly toasted. Keep wrapped in a clean towel to stay warm.',img:null},
+      {title:'Assemble the Fajitas',text:'Layer sliced steak, sautéed vegetables, and pineapple onto warm tortillas. Serve immediately.',img:null},
+    ]},
+  {id:'tenderloin-orig',tag:'Original',category:'Beef',title:'Slow-Roasted Beef Tenderloin',sub:'Horseradish crust — simply perfect',image:'https://geofffrink.github.io/flavor-terrorists/tenderloin.jpg',time:'1 hr 15 min',difficulty:'Easy',servings:'6',calories:'—',
+    ingredientGroups:[
+      {label:'Main',items:[{amt:'3–4 lbs',name:'Beef Tenderloin'},{amt:'generous',name:'Prepared Horseradish'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Preheat',text:'Preheat oven to 450°F. Let the tenderloin rest at room temperature for 30 minutes before cooking.',img:null},
+      {title:'Prep the Roast',text:'Place the beef in a foil-lined roasting pan. Cover the entire top with a generous, thick layer of prepared horseradish — pat it firmly so it adheres well.',img:null},
+      {title:'Roast',text:'Roast for 35–45 minutes for medium rare. Use a thermometer: 145°F for rare, 150°F for medium. Don\'t open the oven during cooking.',img:null},
+      {title:'Rest',text:'Remove from oven and tent loosely with foil. Let rest 15–45 minutes. The juices redistribute and the internal temp climbs slightly.',img:null},
+      {title:'Slice & Serve',text:'Slice into medallions against the grain. Serve with horseradish cream or pan drippings.',img:null},
+    ]},
+  {id:'cherry-pork',tag:'HelloFresh',category:'Pork',title:'Cherry-Drizzled Pork Chops',sub:'with Couscous Salad',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/cherry-drizzled-pork-chops-f4d9eb94.jpg',time:'35 min',difficulty:'Easy',servings:'2',calories:'560 kcal',
+    ingredientGroups:[
+      {label:'Produce',items:[{amt:'4 oz',name:'Grape Tomatoes'},{amt:'2',name:'Scallions'},{amt:'¼ oz',name:'Parsley'},{amt:'1',name:'Lemon'}]},
+      {label:'Proteins & Pantry',items:[{amt:'12 oz',name:'Pork Chops'},{amt:'1 oz',name:'Dried Cherries'},{amt:'½ cup',name:'Couscous'},{amt:'1',name:'Chicken Stock Concentrate'},{amt:'1 oz',name:'Cherry Jam'}]},
+      {label:'From Your Pantry',items:[{amt:'1 tsp',name:'Vegetable Oil'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Prep',text:'Wash and dry all produce. Bring 2 cups water to a boil. Zest and halve the lemon. Halve grape tomatoes. Trim and thinly slice scallions, keeping greens and whites separate. Finely chop parsley.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58f935503bddb5073d34f472-0-0-71b08d15.jpg'},
+      {title:'Plump Cherries',text:'Place dried cherries in a small bowl. Pour over just enough boiling water to cover — save 1 cup of boiling water for the couscous. Set aside.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58f935503bddb5073d34f472-1-0-4d0fac98.jpg'},
+      {title:'Make Couscous',text:'Put couscous in a medium bowl. Stir in scallion whites and a pinch of salt and pepper. Pour in 1 cup boiling water and cover. Set aside.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58f935503bddb5073d34f472-2-0-8514320f.jpg'},
+      {title:'Cook Pork Chops',text:'Heat a drizzle of oil in a large pan over high heat. Pat pork chops dry. Season all over with salt and pepper. Cook 3–6 minutes per side. Remove and rest 5 minutes.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58f935503bddb5073d34f472-3-0-528ee714.jpg'},
+      {title:'Make Pan Sauce',text:'Add stock concentrate, cherry jam, and half the cherries with steeping water to the same pan over medium heat. Stir, simmer, and reduce by half until it sticks to a spoon. Season with salt and pepper.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58f935503bddb5073d34f472-4-0-a4435f38.jpg'},
+      {title:'Finish & Plate',text:'Fluff couscous. Toss with grape tomatoes, scallion greens, lemon zest, remaining cherries, and lemon juice. Divide between plates, top with pork chops, drizzle with pan sauce, garnish with parsley.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58f935503bddb5073d34f472-5-0-577dc39d.jpg'},
+    ]},
+  {id:'lemon-salmon',tag:'HelloFresh',category:'Seafood',title:'Creamy Lemon Salmon',sub:'over Tomato Scallion Couscous',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/creamy-lemon-salmon-7cbb571e.jpg',time:'35 min',difficulty:'Easy',servings:'2',calories:'710 kcal',
+    ingredientGroups:[
+      {label:'Produce',items:[{amt:'1',name:'Roma Tomato'},{amt:'1',name:'Lemon'},{amt:'2',name:'Scallions'},{amt:'2 cloves',name:'Garlic'}]},
+      {label:'Proteins & Pantry',items:[{amt:'10 oz',name:'Skin-On Salmon Fillets'},{amt:'4 tbsp',name:'Sour Cream'},{amt:'½ cup',name:'Israeli Couscous'},{amt:'1 tbsp',name:'Fry Seasoning'}]},
+      {label:'From Your Pantry',items:[{amt:'2 tbsp',name:'Butter'},{amt:'1 tbsp',name:'Vegetable Oil'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Prep',text:'Wash and dry all produce. Core and seed tomato, then cut into ½-inch pieces. Zest lemon until you have 1 tsp zest, then cut into wedges. Trim and thinly slice scallions, keeping greens and whites separate. Mince or grate garlic.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a53ad51c28800028e5f9262/step-d3fb27c7.jpg'},
+      {title:'Make Crema',text:'In a small bowl, stir together sour cream, half the lemon zest, and a few squeezes of lemon juice — start with about ¼ of the lemon and adjust to taste. Season with salt and pepper.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a53ad51c28800028e5f9262/step-69552e45.jpg'},
+      {title:'Cook Couscous',text:'Melt 1 TBSP butter in a medium pot over medium-high heat. Add couscous and cook, stirring occasionally, until lightly toasted, 2–3 minutes. Add 1 cup water and bring to a boil. Lower heat and simmer until al dente, 7–9 minutes. Remove and set aside.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a53ad51c28800028e5f9262/step-83bcfc89.jpg'},
+      {title:'Stir Couscous',text:'Heat another 1 TBSP butter and a drizzle of oil in the same pot over medium-high heat. Add scallion whites and tomato; cook 2–3 minutes. Lower heat, add garlic; cook 1 minute until fragrant. Stir in couscous. Season with salt and pepper.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a53ad51c28800028e5f9262/step-1f2312ae.jpg'},
+      {title:'Cook Salmon',text:'Heat a drizzle of oil in a nonstick pan over medium-high heat. Pat salmon dry. Season all over with salt, pepper, and fry seasoning. Add skin-side down. Cook until skin is crisp, 4–6 minutes. Flip and cook to desired doneness, 2–3 minutes more.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a53ad51c28800028e5f9262/step-6c297977.jpg'},
+      {title:'Plate & Serve',text:'Fluff couscous with a fork, then stir in half the scallion greens. Divide between plates along with salmon, skin-side up to keep it crisp. Drizzle salmon with a spoonful of crema. Sprinkle with remaining scallion greens. Serve with lemon wedges on the side.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a53ad51c28800028e5f9262/step-56ae093c.jpg'},
+    ]},
+  {id:'honey-mustard-chicken',tag:'HelloFresh',category:'Chicken',title:'Honey Mustard Chicken',sub:'with Roasted Sweet Potatoes, Zucchini & Onion',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/honey-mustard-chicken-0bf709a5.jpg',time:'40 min',difficulty:'Easy',servings:'2',calories:'530 kcal',
+    ingredientGroups:[
+      {label:'Produce',items:[{amt:'1',name:'Red Onion'},{amt:'1',name:'Zucchini'},{amt:'2',name:'Sweet Potatoes'},{amt:'1 clove',name:'Garlic'},{amt:'¼ oz',name:'Parsley'}]},
+      {label:'Proteins & Sauce',items:[{amt:'12 oz',name:'Chicken Breasts'},{amt:'½ oz',name:'Honey'},{amt:'1 tbsp',name:'Whole Grain Mustard'},{amt:'1 tsp',name:'White Wine Vinegar'}]},
+      {label:'From Your Pantry',items:[{amt:'2 tbsp',name:'Olive Oil'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Preheat & Prep',text:'Wash and dry all produce. Preheat oven to 400°F. Halve, peel, and cut onion into ½-inch wedges. Halve zucchini lengthwise, then cut into ½-inch half-moons. Cut sweet potatoes into 1-inch cubes.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/5956525ac9fd0852f60e1342-0-0-3ac4ba88.jpg'},
+      {title:'Roast Veggies',text:'Place veggies on a baking sheet and toss with 1 TBSP olive oil and a pinch of salt and pepper. Roast in oven until tender and lightly browned, 25–35 minutes.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/5956525ac9fd0852f60e1342-1-0-3f0ba65f.jpg'},
+      {title:'Marinate Chicken',text:'Mince or grate garlic. In a medium bowl, whisk together garlic, honey, 1 TBSP mustard, 1 tsp white wine vinegar, and 1 TBSP olive oil. Season with salt and pepper. Add chicken and toss to coat.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/5956525ac9fd0852f60e1342-2-0-e81d31ca.jpg'},
+      {title:'Sear Chicken',text:'Heat a medium ovenproof pan over medium-high heat. Remove chicken from marinade, letting excess drip off. Sear until no longer pink on surface, 2–3 minutes per side, brushing with a bit of marinade as it cooks.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/5956525ac9fd0852f60e1342-3-0-f7e29460.jpg'},
+      {title:'Bake Chicken',text:'Pour any remaining marinade into pan with chicken. Once veggies have roasted about 15 minutes, place pan with chicken in oven. Roast until chicken is firm and no longer pink in center, 8–10 minutes.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/5956525ac9fd0852f60e1342-4-0-b38f9d3c.jpg'},
+      {title:'Plate & Serve',text:'Divide veggies and chicken between plates. Drizzle with any remaining pan marinade. Tear parsley leaves and scatter over top.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/5956525ac9fd0852f60e1342-5-0-35d2063a.jpg'},
+    ]},
+  {id:'buffalo-chicken',tag:'HelloFresh',category:'Chicken',title:"Rachael Ray's Grilled Buffalo Chicken",sub:'with Carrot Celery Slaw and Mashed Taters',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/rachael-rays-grilled-buffalo-chicken-2e08f497.jpg',time:'30 min',difficulty:'Easy',servings:'2',calories:'590 kcal',
+    ingredientGroups:[
+      {label:'Produce',items:[{amt:'1',name:'Russet Potato'},{amt:'2',name:'Scallions'},{amt:'1 stalk',name:'Celery'},{amt:'1',name:'Carrot'}]},
+      {label:'Proteins & Sauce',items:[{amt:'12 oz',name:'Chicken Breasts'},{amt:'¼ cup',name:"Frank's Red Hot Sauce"},{amt:'4 tbsp',name:'Sour Cream'},{amt:'½ tsp',name:'Celery Salt'},{amt:'1 tbsp',name:'White Wine Vinegar'}]},
+      {label:'From Your Pantry',items:[{amt:'1 tbsp',name:'Olive Oil'},{amt:'2 tbsp',name:'Butter'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Boil Potato',text:'Wash and dry all produce. Preheat grill to high (or skip if cooking on stove). Peel potato and cut into ½-inch cubes. Place in a medium pot with enough water to cover by 1 inch. Bring to a boil with a pinch of salt. Cook until easily pierced, 10–12 minutes. Drain and return to pot.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/590c7e50d56afa54087cb232-0-0-a5280c29.jpg'},
+      {title:'Make Slaw',text:'Thinly slice scallions on an angle. Thinly slice celery. Peel and grate carrot. In a bowl, toss celery, carrot, 1 TBSP white wine vinegar, ½ tsp celery salt, a drizzle of olive oil, and a pinch of pepper and sugar.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/590c7e50d56afa54087cb232-1-0-223047cc.jpg'},
+      {title:'Cook Chicken',text:'Heat a drizzle of olive oil in a large pan over medium-high heat. Pat chicken dry, rub with a little olive oil, and season with salt and pepper. Cook on stove or grill until no longer pink in center, 4–5 minutes per side. Set aside.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/590c7e50d56afa54087cb232-2-0-1ba140c1.jpg'},
+      {title:'Make Buffalo Sauce',text:"Add Frank's RedHot to the same pan over medium heat. Bring to a gentle simmer, then reduce to low. Add butter one piece at a time, whisking to melt and incorporate. Once all butter is mixed in, add chicken and toss to coat. Remove from heat.",img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/590c7e50d56afa54087cb232-3-0-2bd72a5d.jpg'},
+      {title:'Mash Potato',text:'Add sour cream to drained potato in pot. Mash until mostly smooth. Stir in half the scallions. Season with salt and pepper. Reheat briefly over medium-low if needed.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/590c7e50d56afa54087cb232-4-0-e96f93c6.jpg'},
+      {title:'Plate & Serve',text:'Divide slaw and mashed potato between plates. Add chicken, letting excess sauce drip off before plating. Garnish with remaining scallions and serve.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/590c7e50d56afa54087cb232-5-0-52781c3e.jpg'},
+    ]},
+  {id:'soy-steak',tag:'HelloFresh',category:'Beef',title:'Soy-Marinated Steak',sub:'with Peanut Sauce and Crispy Broccoli',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/w21-r2-f2cf4a72.jpg',time:'40 min',difficulty:'Easy',servings:'2',calories:'710 kcal',
+    ingredientGroups:[
+      {label:'Produce & Grains',items:[{amt:'8 oz',name:'Broccoli Florets'},{amt:'½ cup',name:'Jasmine Rice'},{amt:'2',name:'Scallions'},{amt:'2 cloves',name:'Garlic'},{amt:'1',name:'Lime'}]},
+      {label:'Proteins & Sauce',items:[{amt:'12 oz',name:'Beef Stir-Fry Strips'},{amt:'4 tbsp',name:'Soy Sauce'},{amt:'2 tbsp',name:'Peanut Butter'}]},
+      {label:'From Your Pantry',items:[{amt:'5 tsp',name:'Vegetable Oil'},{amt:'4 tsp',name:'Sugar'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Preheat & Prep',text:'Wash and dry all produce. Preheat oven to 400°F. Bring ¾ cup water and a pinch of salt to a boil in a small pot. Mince or grate garlic. Zest lime until you have ½ tsp zest, then cut into halves — cut one half into wedges. Thinly slice scallions, keeping greens and whites separate.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58e65ffcd56afa71220915b2-0-0-f02ba21e.jpg'},
+      {title:'Roast Broccoli & Cook Rice',text:'Toss broccoli with a drizzle of oil and a pinch of salt and pepper on a baking sheet. Roast until crispy, 15–20 minutes. Once water is boiling, add rice to pot. Cover, lower heat, and simmer until tender, 15–20 minutes.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58e65ffcd56afa71220915b2-1-0-64721355.jpg'},
+      {title:'Marinate Beef',text:'In a medium bowl, toss together beef, half the garlic, lime zest, 1 TBSP soy sauce, 2 tsp sugar, and a large drizzle of oil. Season with salt and pepper.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58e65ffcd56afa71220915b2-2-0-58c39443.jpg'},
+      {title:'Make Peanut Sauce',text:'Heat a drizzle of oil in a large pan over low heat. Add scallion whites and remaining garlic; cook 1 minute. Stir in peanut butter, 2 tsp sugar, and 1 tsp soy sauce. Slowly pour in ¼ cup water, stirring to combine. Remove from heat and stir in a squeeze of lime. Season with salt and pepper. Transfer to a bowl.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58e65ffcd56afa71220915b2-3-0-6b495201.jpg'},
+      {title:'Cook Beef',text:'Rinse and dry the pan. Heat a drizzle of oil over medium-high heat. Add beef and cook, tossing, until browned and cooked to desired doneness, 3–4 minutes. Cook in batches to avoid overcrowding.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58e65ffcd56afa71220915b2-4-0-43cfb1a6.jpg'},
+      {title:'Plate & Serve',text:'Divide rice between plates, then top with broccoli and beef. Drizzle with peanut sauce. Garnish with scallion greens. Serve with lime wedges and any remaining peanut sauce on the side.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58e65ffcd56afa71220915b2-5-0-c3c9dd4a.jpg'},
+    ]},
+  {id:'honey-chicken',tag:'HelloFresh',category:'Chicken',title:"Lauren Conrad's Sweet-As-Honey Chicken",sub:'with Green Beans over Jasmine Rice',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/sweet-as-honey-chicken-43c5ca5e.jpg',time:'30 min',difficulty:'Easy',servings:'2',calories:'560 kcal',
+    ingredientGroups:[
+      {label:'Produce & Grains',items:[{amt:'2 cloves',name:'Garlic'},{amt:'1',name:'Lime'},{amt:'1 thumb',name:'Ginger'},{amt:'½ cup',name:'Jasmine Rice'},{amt:'6 oz',name:'Green Beans'}]},
+      {label:'Proteins & Sauce',items:[{amt:'12 oz',name:'Chicken Breasts'},{amt:'1 tbsp',name:'Soy Sauce'},{amt:'1 oz',name:'Honey'},{amt:'1.5 tbsp',name:'White Wine Vinegar'},{amt:'1',name:'Chicken Stock Concentrate'}]},
+      {label:'From Your Pantry',items:[{amt:'1 tbsp',name:'Vegetable Oil'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Prep',text:'Wash and dry all produce. Bring 1 cup water and a pinch of salt to a boil in a small pot. Mince garlic. Cut lime into wedges. Peel ginger and mince until you have 1 TBSP.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5b6dfcf630006c7bd27889c2/step-adf3b247.jpg'},
+      {title:'Cook Rice & Chicken',text:'Once water boils, add rice. Cover, lower heat, and simmer until tender, about 15 minutes. Meanwhile, heat a drizzle of oil in a large pan over medium-high heat. Season chicken with salt and pepper. Cook until no longer pink in center, 4–5 minutes per side. Remove and set aside.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5b6dfcf630006c7bd27889c2/step-bc46f60f.jpg'},
+      {title:'Cook Aromatics',text:'Reduce heat to medium-low and add a drizzle of oil. Add minced ginger and garlic. Cook, tossing, until softened and fragrant, about 1 minute. Pour in 1½ TBSP vinegar and let reduce until almost evaporated.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5b6dfcf630006c7bd27889c2/step-13859223.jpg'},
+      {title:'Make Glaze',text:'Stir 1 TBSP soy sauce, 2 TBSP water, stock concentrate, and honey into the same pan. Simmer until the mixture thickens to a glaze, 2–3 minutes. Remove from heat, return chicken to pan, and toss to coat.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5b6dfcf630006c7bd27889c2/step-9b73b499.jpg'},
+      {title:'Cook Green Beans',text:'Microwave green beans in a covered bowl with a splash of water on high until just tender, about 2 minutes. Drain thoroughly, then cook in a drizzle of oil in a medium pan over medium-high heat until lightly crisped, 3–5 minutes. Season with salt, pepper, and a squeeze of lime.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5b6dfcf630006c7bd27889c2/step-f0e74a4a.jpg'},
+      {title:'Plate & Serve',text:'Divide rice between plates. Top with green beans and chicken. Serve with remaining lime wedges on the side for squeezing over.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5b6dfcf630006c7bd27889c2/step-a49e2502.jpg'},
+    ]},
+  {id:'tenderloin-hf',tag:'HelloFresh',category:'Beef',title:'Beef Tenderloin with Tangy Shallot Sauce',sub:'plus Crispy Fingerlings & Broccoli Salad',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/beef-tenderloin-with-tangy-shallot-sauce-f1b8d9ae.jpg',time:'45 min',difficulty:'Medium',servings:'2',calories:'780 kcal',
+    ingredientGroups:[
+      {label:'Produce',items:[{amt:'12 oz',name:'Fingerling Potatoes'},{amt:'8 oz',name:'Broccoli Florets'},{amt:'1',name:'Shallot'},{amt:'2 oz',name:'Mixed Greens'}]},
+      {label:'Proteins & Sauce',items:[{amt:'10 oz',name:'Beef Tenderloin Filets'},{amt:'5 tsp',name:'Red Wine Vinegar'},{amt:'2 tsp',name:'Dijon Mustard'},{amt:'2',name:'Chicken Stock Concentrate'},{amt:'2',name:'Plum Jam'}]},
+      {label:'From Your Pantry',items:[{amt:'1 tbsp',name:'Cooking Oil'},{amt:'3 tbsp',name:'Olive Oil'},{amt:'1 tbsp',name:'Butter'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Start Potatoes & Prep',text:'Adjust rack to top position and preheat oven to 450°F. Halve potatoes lengthwise. Boil in salted water until tender, about 15 minutes. Drain and return to pot. Meanwhile, cut broccoli into bite-size pieces. Halve, peel, and thinly slice shallot; finely chop a few slices until you have 1½ tsp.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/636038ca138672a0d706bfe2/step-fb26ded8.jpg'},
+      {title:'Roast Broccoli',text:'Toss broccoli on a baking sheet with a drizzle of oil, salt, and pepper. Roast on top rack until browned and tender, 12–15 minutes.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/636038ca138672a0d706bfe2/step-1d3598d7.jpg'},
+      {title:'Cook Beef',text:'Pat beef dry and season generously with salt and pepper. Heat a drizzle of oil in a large pan over medium-high heat. Cook to desired doneness, 4–7 minutes per side. Transfer to a cutting board and tent with foil. Wipe out pan.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/636038ca138672a0d706bfe2/step-f1d5faba.jpg'},
+      {title:'Make Pickles & Dressing',text:'In a small microwave-safe bowl, combine half the vinegar, 1 tsp sugar, ½ tsp water, salt, and pepper. Stir in sliced shallot, cover, and microwave 1 minute. Transfer 1 TBSP pickling liquid to a separate bowl; whisk in mustard and 2 TBSP olive oil for the dressing.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/636038ca138672a0d706bfe2/step-c1e7c43f.jpg'},
+      {title:'Crisp Potatoes',text:'Add 1 TBSP olive oil to pot with drained potatoes. Cook over medium-high heat, stirring, until skins are crisp and browned, 3–5 minutes. Season with salt and pepper.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/636038ca138672a0d706bfe2/step-b4408b26.jpg'},
+      {title:'Make Shallot Sauce',text:'Heat a drizzle of oil in the pan used for beef over medium heat. Add chopped shallot and cook 1–2 minutes. Stir in jam, stock concentrates, remaining vinegar, and ¼ cup water. Simmer until slightly thickened, 2–3 minutes. Remove from heat and stir in 1 TBSP butter until melted. Season to taste.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/636038ca138672a0d706bfe2/step-fdd44879.jpg'},
+      {title:'Finish & Serve',text:'Toss mixed greens with broccoli, pickled shallot (drained), and dressing. Thinly slice beef against the grain. Divide beef, potatoes, and salad between plates. Spoon sauce over beef.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/636038ca138672a0d706bfe2/step-8a8f4d92.jpg'},
+    ]},
+  {id:'tagliata',tag:'HelloFresh',category:'Beef',title:'Sliced Steak Tagliata',sub:'with Sweet Potatoes, Green Beans & Tomato Vinaigrette',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/sliced-steak-tagliata-cbc9ad8c.jpg',time:'30 min',difficulty:'Easy',servings:'2',calories:'670 kcal',
+    ingredientGroups:[
+      {label:'Produce',items:[{amt:'2',name:'Sweet Potatoes'},{amt:'¼ oz',name:'Rosemary'},{amt:'2 cloves',name:'Garlic'},{amt:'4 oz',name:'Grape Tomatoes'},{amt:'6 oz',name:'Green Beans'}]},
+      {label:'Protein & Sauce',items:[{amt:'10 oz',name:'Ranch Steak'},{amt:'5 tsp',name:'Balsamic Vinegar'},{amt:'1',name:'Beef Stock Concentrate'}]},
+      {label:'From Your Pantry',items:[{amt:'1 tbsp',name:'Olive Oil'},{amt:'1.5 tbsp',name:'Butter'},{amt:'½ tsp',name:'Sugar'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Preheat & Prep',text:'Wash and dry all produce. Adjust rack to upper position and preheat oven to 450°F. Cut sweet potatoes into wedges. Pick and roughly chop rosemary leaves until you have 2 tsp. Smash 1 clove garlic; mince the other. Halve tomatoes lengthwise.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a4e5c3c2c3e08552f387b12/step-2465be00.jpg'},
+      {title:'Roast Sweet Potatoes',text:'Toss sweet potatoes with smashed garlic, half the rosemary, a drizzle of olive oil, salt and pepper on a baking sheet. Roast until tender and lightly crisped, about 20 minutes, tossing halfway through.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a4e5c3c2c3e08552f387b12/step-621aa5d1.jpg'},
+      {title:'Cook Steak',text:'Heat a drizzle of olive oil in a large pan over medium-high heat. Season steak all over with salt and pepper. Cook until browned, 2–3 minutes per side. Transfer to a baking sheet and roast until cooked to desired doneness, 5–7 minutes. Let rest 5 minutes.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a4e5c3c2c3e08552f387b12/step-e9e38d85.jpg'},
+      {title:'Cook Green Beans',text:'Microwave green beans in a covered bowl with a splash of water until tender, about 5 minutes. Drain, return to bowl, and toss with ½ TBSP butter to melt and coat.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a4e5c3c2c3e08552f387b12/step-ad28a9f8.jpg'},
+      {title:'Make Vinaigrette',text:'Heat a drizzle of olive oil in pan used for steak over medium-high heat. Add tomatoes and minced garlic; cook 1–2 minutes. Stir in vinegar, ½ tsp sugar, remaining rosemary, and stock concentrate. Simmer until slightly thickened, 2–3 minutes. Remove from heat and swirl in 1 TBSP butter. Season with salt and pepper.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a4e5c3c2c3e08552f387b12/step-03f0313a.jpg'},
+      {title:'Finish & Serve',text:'Thinly slice steak against the grain. Divide between plates along with green beans and sweet potato wedges. Drizzle tomatoes and vinaigrette over steak and serve.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5a4e5c3c2c3e08552f387b12/step-90922e66.jpg'},
+    ]},
+  {id:'pineapple-pork',tag:'HelloFresh',category:'Pork',title:'Pineapple Pork Chops',sub:'with Snap Peas and Jasmine Rice',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/w19-r3-61a087f1.jpg',time:'35 min',difficulty:'Easy',servings:'2',calories:'580 kcal',
+    ingredientGroups:[
+      {label:'Produce & Grains',items:[{amt:'1 cup',name:'Pineapple, chopped'},{amt:'6 oz',name:'Sugar Snap Peas'},{amt:'1',name:'Shallot'},{amt:'½ cup',name:'Jasmine Rice'},{amt:'1',name:'Lime'},{amt:'¼ oz',name:'Cilantro'}]},
+      {label:'Protein & Sauce',items:[{amt:'12 oz',name:'Boneless Pork Chops'},{amt:'2 tsp',name:'Honey'}]},
+      {label:'From Your Pantry',items:[{amt:'2 tbsp',name:'Olive Oil'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Prep',text:'Wash and dry all produce. Bring ¾ cup water and a large pinch of salt to a boil in a small pot. Trim tough ends from snap peas. Peel, halve, and mince shallot. Cut lime in half. Finely chop cilantro. Drain pineapple, reserving juice, and finely chop flesh.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58d3c6c83bddb5181238afd3-0-0-364362fd.jpg'},
+      {title:'Cook Rice',text:'Once water is boiling, add rice. Cover, lower heat, and simmer until tender, 15–20 minutes. Remove from heat and keep covered until ready.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58d3c6c83bddb5181238afd3-1-0-94a5a9f2.jpg'},
+      {title:'Make Salsa',text:'In a medium bowl, combine pineapple, 2 tsp shallot, half the cilantro, and juice from one lime half. Season with salt and pepper.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58d3c6c83bddb5181238afd3-2-0-532b713b.jpg'},
+      {title:'Cook Pork',text:'Heat a drizzle of olive oil in a large pan over medium-high heat. Season pork with salt and pepper. Cook until nearly done, 4–5 minutes per side. Stir in remaining shallot, honey, reserved pineapple juice, and 2 TBSP water. Cook another 1–2 minutes. Remove from heat and squeeze in a little lime.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58d3c6c83bddb5181238afd3-3-0-d921d9bb.jpg'},
+      {title:'Cook Snap Peas',text:'Transfer pork and glaze to a plate; cover with foil. Wipe out pan and heat a drizzle of olive oil over medium-high heat. Add snap peas and cook, tossing, until tender but still slightly crisp, 3–5 minutes. Season with salt and pepper.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58d3c6c83bddb5181238afd3-4-0-a6269f69.jpg'},
+      {title:'Finish & Plate',text:'Stir remaining cilantro and a squeeze of lime into rice. Divide between plates, then top with snap peas, pork, glaze, and pineapple salsa.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/58d3c6c83bddb5181238afd3-5-0-4a5ec0c2.jpg'},
+    ]},
+  {id:'bourbon-pork',tag:'HelloFresh',category:'Pork',title:'Brown Sugar Bourbon Pork Chops',sub:'with Apple Pan Sauce, Scallion Mashed Potatoes & Broccoli',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/652e8f7b0adad327d2408cca-ef3881e7.jpeg',time:'35 min',difficulty:'Medium',servings:'2',calories:'630 kcal',
+    ingredientGroups:[
+      {label:'Produce',items:[{amt:'12 oz',name:'Potatoes'},{amt:'12 oz',name:'Broccoli'},{amt:'1',name:'Apple'},{amt:'2',name:'Scallions'}]},
+      {label:'Protein & Sauce',items:[{amt:'10 oz',name:'Pork Chops'},{amt:'10.8 g',name:'Brown Sugar Bourbon Seasoning'},{amt:'1',name:'Chicken Stock Concentrate'},{amt:'1.5 tbsp',name:'Sour Cream'}]},
+      {label:'From Your Pantry',items:[{amt:'2 tbsp',name:'Butter'},{amt:'1 tsp',name:'Cooking Oil'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Cook Potatoes',text:'Adjust rack to middle position and preheat oven to 425°F. Dice potatoes into ½-inch pieces. Boil in salted water until tender, 15–20 minutes. Reserve ½ cup potato cooking liquid, then drain and return to pot. Keep covered off heat until ready to mash.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/6434eb74d77e4cc6860bf922/step-664ce4ea.jpg'},
+      {title:'Cook Pork',text:'Pat pork dry and season all over with Brown Sugar Bourbon Seasoning. Heat a drizzle of oil in a large pan over medium-high heat. Cook until browned and cooked through, 4–6 minutes per side. Reduce to medium if browning too quickly. Transfer pork to a plate. Wipe out pan.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/6434eb74d77e4cc6860bf922/step-f0f48b89.jpg'},
+      {title:'Roast Broccoli & Prep',text:'Cut broccoli into bite-size pieces. Toss with a drizzle of olive oil, salt, and pepper on a baking sheet. Roast until lightly browned, 15–20 minutes. Meanwhile, dice apple into ¼-inch pieces. Trim and thinly slice scallions, separating whites from greens.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/recipe/step-652e8f7b0adad327d2408cca-fab749d6.jpeg'},
+      {title:'Make Apple Pan Sauce',text:'Melt 1 TBSP butter in pan used for pork over medium-high heat. Add apple and scallion whites; season with salt and pepper. Cook until golden, 4–6 minutes. Stir in stock concentrate, ½ cup water, and ½ tsp sugar. Cook until sauce thickens and apple is tender, 5–7 minutes. In the last 2 minutes, return pork to pan to warm through.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/6434eb74d77e4cc6860bf922/step-1228e3e5.jpg'},
+      {title:'Mash Potatoes',text:'Mash potatoes until mostly smooth. Stir in scallion greens, sour cream, 1 TBSP butter, and a splash of reserved potato cooking liquid. Season with salt and pepper. Add more cooking liquid a splash at a time if needed for creaminess.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/recipe/step-659f05aa145e14b9dce0a0b4-189f1a4e.png'},
+      {title:'Serve',text:'Divide pork, mashed potatoes, and broccoli between plates. Top pork with apple pan sauce and serve.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/recipe/step-652e8f7b0adad327d2408cca-0e58d483.jpeg'},
+    ]},
+
+  // ── NEW RECIPES FROM COOKBOOK PPTX ───────────────────────────────────────
+  {id:'smash-burgers',tag:'Original',category:'Beef',title:'Smash Burgers',sub:'Classic cast iron smash with special sauce',image:'https://geofffrink.github.io/flavor-terrorists/smash-burger.jpg',time:'20 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Burger',items:[{amt:'⅓ lb each',name:'85% Ground Beef (per patty)'},{amt:'as needed',name:'Shredded Lettuce'},{amt:'as needed',name:'Tomato, sliced'},{amt:'as needed',name:'Onion, sliced'},{amt:'as needed',name:'Cheese'},{amt:'as needed',name:'Burger Buns'}]},
+      {label:'Special Sauce',items:[{amt:'to taste',name:'Mayonnaise'},{amt:'to taste',name:'Brown Mustard'},{amt:'to taste',name:'Ketchup'},{amt:'to taste',name:'Sweet Relish'},{amt:'to taste',name:'Minced Onion'}]}
+    ],
+    steps:[
+      {title:'Heat the Cast Iron',text:'Heat a cast iron skillet over high heat until screaming hot. Add a thin layer of avocado, canola, or vegetable oil and let it shimmer.',img:null},
+      {title:'Make the Special Sauce',text:'Mix together mayonnaise, brown mustard, ketchup, sweet relish, and minced onion in a small bowl. Taste and adjust ratios as needed. Set aside.',img:null},
+      {title:'Cook the Onions First',text:'Slice onion thin and add to the hot cast iron first. Cook until softened and slightly charred, 3–4 minutes. Remove and set aside.',img:null},
+      {title:'Smash the Burgers',text:'Mold ground beef into ⅓ lb balls — don\'t overwork the meat. Place on the screaming-hot skillet and immediately smash flat with a heavy spatula. Season generously with salt and pepper. Cook until a deep brown crust forms, 2–3 minutes.',img:null},
+      {title:'Flip & Cheese',text:'Flip the patties — they should release cleanly when the crust is ready. Immediately add cheese. Cook another 1–2 minutes until cooked through. Toast buns cut-side down on the same skillet.',img:null},
+      {title:'Assemble & Serve',text:'Spread special sauce on both bun halves. Layer lettuce, tomato, cooked onion, and the smash patty. Serve immediately.',img:null},
+    ]},
+
+  {id:'chicky-parm',tag:'Original',category:'Chicken',title:'Chicky Chicky Parm Parm',sub:'Crispy breaded chicken, fresh mozz & marinara',image:'https://images.unsplash.com/photo-1632778149955-e80f8ceca2e8?w=800&q=80',time:'40 min',difficulty:'Medium',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Main',items:[{amt:'4',name:'Chicken Breasts'},{amt:'1 cup',name:'All-Purpose Flour'},{amt:'3',name:'Eggs'},{amt:'1 cup',name:'Breadcrumbs'},{amt:'½ cup',name:'Parmesan Cheese, grated'},{amt:'to taste',name:'Italian Herb Blend'},{amt:'to taste',name:'Garlic Powder'},{amt:'as needed',name:'Fresh Mozzarella, sliced'},{amt:'1½ cups',name:'Marinara Sauce'},{amt:'fresh',name:'Basil, for garnish'}]}
+    ],
+    steps:[
+      {title:'Preheat',text:'Preheat oven to 425°F. Set up a breading station with 3 shallow bowls: flour in the first, beaten eggs in the second, and breadcrumbs mixed with grated parmesan, Italian herbs, and garlic powder in the third.',img:null},
+      {title:'Bread the Chicken',text:'Pat chicken dry. Dredge each breast in flour (shake off excess), then dip in egg, then press firmly into the breadcrumb-parmesan mixture to coat evenly on both sides.',img:null},
+      {title:'Brown in Cast Iron',text:'Heat a generous amount of oil in a cast iron skillet over medium-high heat. Sear the breaded chicken until golden brown, 2–3 minutes per side. Work in batches if needed — don\'t crowd the pan.',img:null},
+      {title:'Top & Bake',text:'Transfer browned chicken to a baking sheet. Top each piece with slices of fresh mozzarella, then spoon marinara sauce over the top.',img:null},
+      {title:'Bake & Broil',text:'Bake for 14 minutes until chicken is cooked through. Switch to broil for the final minute, adding a sprinkle of parmesan. Watch closely — it goes from perfect to burnt fast.',img:null},
+      {title:'Garnish & Serve',text:'Plate immediately and top with fresh basil leaves. Serve with pasta or a simple salad.',img:null},
+    ]},
+
+  {id:'chicken-noodle-soup',tag:'Original',category:'Chicken',title:'Chicken Noodle Soup',sub:'Classic homemade broth with egg noodles & rosemary',image:'https://geofffrink.github.io/flavor-terrorists/chicken-noodle-soup.jpg',time:'1 hr',difficulty:'Easy',servings:'6',calories:'—',
+    ingredientGroups:[
+      {label:'Main',items:[{amt:'1 tbsp',name:'Olive Oil'},{amt:'1 large',name:'Onion, diced'},{amt:'3–4 cloves',name:'Garlic, minced'},{amt:'1 lb',name:'Chicken Breast'},{amt:'4 cups',name:'Low-Sodium Chicken Stock'},{amt:'4 cups',name:'Water'},{amt:'4 large',name:'Carrots, peeled and diced'},{amt:'3 stalks',name:'Celery, diced'},{amt:'6 oz',name:'Egg Noodles'},{amt:'1 tbsp',name:'Fresh Rosemary, minced'},{amt:'2',name:'Bay Leaves'},{amt:'2',name:'Lemons'},{amt:'to taste',name:'Pickled Ginger'}]}
+    ],
+    steps:[
+      {title:'Steps Coming Soon',text:'This recipe is in the collection! Full step-by-step instructions will be added soon. In the meantime, use the ingredients list as your guide.',img:null},
+    ]},
+
+  {id:'instant-pot-buffalo',tag:'Original',category:'Chicken',title:'Instant Pot Buffalo Chicken',sub:'Tender shredded chicken in buttery buffalo sauce',image:'https://geofffrink.github.io/flavor-terrorists/buffalo-chicken.jpg',time:'30 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Main',items:[{amt:'3 large',name:'Boneless Chicken Breasts (about 2 lbs)'},{amt:'12 oz',name:'Buffalo Wing Sauce (about 2 cups)'},{amt:'3 tbsp',name:'Butter'},{amt:'¼ cup',name:'Water'}]}
+    ],
+    steps:[
+      {title:'Load the Instant Pot',text:'Place chicken breasts in the inner liner of the Instant Pot. Add butter. Pour buffalo wing sauce and water over the chicken.',img:null},
+      {title:'Pressure Cook',text:'Cover and turn the valve to the Sealing position. Hit PRESSURE COOK (or Manual) and set for 10 minutes at high pressure.',img:null},
+      {title:'Natural Release',text:'When the pot beeps, allow a 10-minute natural pressure release. Then turn the valve to Venting to release any remaining pressure. When the pin drops, open the lid.',img:null},
+      {title:'Shred & Serve',text:'Shred the chicken directly in the pot using two forks, tossing to coat in the buffalo sauce. Serve on buns, over rice, or with celery and blue cheese.',img:null},
+    ]},
+
+  {id:'chicken-tortilla-soup',tag:'Original',category:'Chicken',title:'Chicken Tortilla Soup',sub:'Pressure cooker — bold, smoky, and loaded',image:'https://geofffrink.github.io/flavor-terrorists/chicken-tortilla-soup.jpg',time:'35 min',difficulty:'Easy',servings:'6',calories:'—',
+    ingredientGroups:[
+      {label:'Soup',items:[{amt:'2 large',name:'Chicken Breasts'},{amt:'12 oz',name:'Your Favorite Salsa'},{amt:'6 cups',name:'Chicken Broth'},{amt:'1',name:'Onion, chopped'},{amt:'1',name:'Red Bell Pepper, diced'},{amt:'4 oz',name:'Tomato Paste'},{amt:'15 oz can',name:'Black Beans, drained and rinsed'},{amt:'2 cups',name:'Frozen Corn'}]},
+      {label:'Spices',items:[{amt:'2 tsp',name:'Cumin'},{amt:'1 tbsp',name:'Chili Powder'},{amt:'2 tsp',name:'Salt'},{amt:'½ tsp',name:'Black Pepper'},{amt:'⅛ tsp',name:'Cayenne Pepper'}]},
+      {label:'Toppings',items:[{amt:'as needed',name:'Limes, cut into wedges'},{amt:'as needed',name:'Sour Cream'},{amt:'as needed',name:'Green Onion, chopped'},{amt:'as needed',name:'Avocado, diced'},{amt:'as needed',name:'Tortilla Chips, crushed'}]}
+    ],
+    steps:[
+      {title:'Build the Base',text:'In the pressure cooker pot, add chicken, salsa, chicken broth, onion, bell pepper, cumin, chili powder, salt, black pepper, cayenne, and tomato paste. Stir everything together.',img:null},
+      {title:'Pressure Cook',text:'Lock the lid and set to high pressure for 10 minutes.',img:null},
+      {title:'Release & Shred',text:'When time is up, allow pressure to naturally release for 10 minutes, then quick release the remaining pressure. Remove the lid and shred the chicken in the pot using two forks.',img:null},
+      {title:'Add Beans & Corn',text:'Set the pressure cooker to "Simmer" and stir in the black beans and frozen corn. Cook until the corn is heated through, about 5 minutes.',img:null},
+      {title:'Bowl & Top',text:'Ladle soup into bowls. Finish with a squeeze of lime, a dollop of sour cream, chopped green onion, diced avocado, and crushed tortilla chips. Season with salt and pepper.',img:null},
+    ]},
+
+  {id:'cioppino',tag:'Original',category:'Seafood',title:'Cioppino (Seafood Stew)',sub:'San Francisco-style with white wine & crushed tomato',image:'https://geofffrink.github.io/flavor-terrorists/cioppino.jpg',time:'1 hr',difficulty:'Medium',servings:'6',calories:'—',
+    ingredientGroups:[
+      {label:'Aromatics',items:[{amt:'2 tbsp',name:'Olive Oil'},{amt:'1 large',name:'Onion, chopped'},{amt:'3',name:'Shallots, chopped'},{amt:'2',name:'Red Bell Peppers, diced'},{amt:'6 cloves',name:'Garlic, chopped'},{amt:'1 tsp',name:'Dried Oregano'},{amt:'1 tbsp',name:'Italian Seasoning'},{amt:'1 tsp',name:'Kosher Salt'},{amt:'1 tsp',name:'Black Pepper'},{amt:'1 tsp',name:'Dried Red Pepper Flakes'},{amt:'¼ cup',name:'Tomato Paste'},{amt:'2 cups',name:'Dry White Wine'},{amt:'28 oz can',name:'Crushed Tomatoes'},{amt:'1',name:'Bay Leaf'},{amt:'30 oz',name:'Clam Juice or Seafood Stock'}]},
+      {label:'Seafood',items:[{amt:'½ lb',name:'Calamari'},{amt:'1 lb',name:'Halibut or Firm White Fish, cut into 2-inch pieces'},{amt:'½ lb',name:'Scallops'},{amt:'1 lb',name:'Large Shrimp, peeled and deveined'}]}
+    ],
+    steps:[
+      {title:'Build the Broth',text:'Heat olive oil in a large heavy pot over medium heat. Add onion, shallots, and garlic; sauté until softened, about 5 minutes. Add Italian seasoning, oregano, salt, pepper, and red pepper flakes. Stir in tomato paste and cook 1 minute. Pour in white wine and let reduce for 2–3 minutes.',img:null},
+      {title:'Simmer the Base',text:'Add crushed tomatoes, clam juice or seafood stock, and the bay leaf. Bring to a boil, then reduce heat and simmer for 25 minutes to develop flavor.',img:null},
+      {title:'Add the Fish',text:'Add calamari and the white fish pieces. Simmer for 5 minutes.',img:null},
+      {title:'Add the Shellfish',text:'Add scallops and shrimp. Cook another 5–10 minutes until shrimp are pink and scallops are opaque. Remove bay leaf.',img:null},
+      {title:'Serve',text:'Ladle into deep bowls and serve with crusty sourdough bread for dipping.',img:null},
+    ]},
+
+  {id:'gumbo',tag:'Original',category:'Seafood',title:'Gumbo',sub:'Instant Pot — dark roux, shrimp, chicken & sausage',image:'https://geofffrink.github.io/flavor-terrorists/gumbo.jpg',time:'1 hr',difficulty:'Medium',servings:'6',calories:'—',
+    ingredientGroups:[
+      {label:'Roux & Vegetables',items:[{amt:'¼ cup',name:'All-Purpose Flour'},{amt:'¼ cup',name:'Canola Oil'},{amt:'1½ cups',name:'Green Bell Pepper, diced'},{amt:'1 cup',name:'Onion, diced'},{amt:'1 cup',name:'Celery, chopped'},{amt:'3',name:'Green Onions, diced'},{amt:'1 clove',name:'Garlic, chopped'}]},
+      {label:'Liquid & Spice',items:[{amt:'3 cups',name:'Water'},{amt:'29 oz (2 cans)',name:'Stewed Tomatoes, undrained'},{amt:'1 tbsp',name:'Old Bay Seasoning'},{amt:'1 tsp',name:'Garlic Powder'},{amt:'½ tsp',name:'Salt'},{amt:'4',name:'Bay Leaves'},{amt:'1 tbsp',name:'Hot Sauce'}]},
+      {label:'Protein',items:[{amt:'½ lb',name:'Chicken Breast, cut into 1-inch pieces'},{amt:'1 lb',name:'Medium Shrimp, peeled and deveined'},{amt:'½ cup',name:'Sausage, sliced'}]},
+      {label:'For Serving',items:[{amt:'as needed',name:'White Rice'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Make the Roux',text:'With the lid off the Instant Pot, press Sauté and set to Normal mode. Combine flour and oil in the cooker. Cook for 5 minutes, stirring constantly with a flat spatula, until the roux turns a deep dark brown.',img:null},
+      {title:'Cook the Vegetables',text:'Add bell pepper, onion, celery, and garlic to the roux. Cook for 3 minutes, stirring frequently.',img:null},
+      {title:'Build the Stew',text:'Stir in 3 cups water, Old Bay, garlic powder, salt, tomatoes, chicken, and bay leaves.',img:null},
+      {title:'Pressure Cook',text:'Close and lock the lid. Turn the steam release handle to Sealing. Press Manual and select High Pressure for 23 minutes. When done, turn cooker off and use Natural Pressure Release.',img:null},
+      {title:'Add Shrimp & Sausage',text:'Stir in hot sauce. Press Sauté and set to More mode. Cook uncovered for 5 minutes, stirring occasionally. Add shrimp and sausage; cook 5 minutes or until done. Remove and discard bay leaves.',img:null},
+      {title:'Serve',text:'Serve over a small amount of white rice. Top with green onions and season with salt and pepper.',img:null},
+    ]},
+
+  {id:'lemon-pepper-turkey',tag:'Original',category:'Turkey',title:'Lemon Pepper Ground Turkey',sub:'Over rice with asparagus — light and clean',image:'https://geofffrink.github.io/flavor-terrorists/lemon-pepper-turkey.jpg',time:'25 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Main',items:[{amt:'1 lb',name:'Ground Turkey'},{amt:'3 cloves',name:'Garlic, minced'},{amt:'1',name:'Onion, diced'},{amt:'to taste',name:'Cumin'},{amt:'to taste',name:'Garlic Powder'},{amt:'to taste',name:'Lemon Pepper Seasoning'},{amt:'1',name:'Lemon, for squeezing'},{amt:'1 tbsp',name:'Olive Oil'}]},
+      {label:'For Serving',items:[{amt:'as needed',name:'White Rice, cooked'},{amt:'1 bunch',name:'Asparagus'}]}
+    ],
+    steps:[
+      {title:'Cook the Aromatics',text:'Heat olive oil in a pan or set an Instant Pot to Sauté. Add the garlic and diced onion. Cook until softened and fragrant, 3–4 minutes.',img:null},
+      {title:'Cook the Turkey',text:'Add ground turkey and break it up with a spoon. Season with cumin, garlic powder, and lemon pepper seasoning. Cook until no longer pink, 5–7 minutes.',img:null},
+      {title:'Cook the Asparagus',text:'Snap the tough ends off the asparagus. Cook in the same pan or a separate skillet with a drizzle of oil over medium-high heat until tender-crisp, 4–5 minutes. Season with salt and lemon pepper.',img:null},
+      {title:'Plate & Finish',text:'Serve turkey over rice with asparagus on the side. Squeeze fresh lemon generously over everything just before eating.',img:null},
+    ]},
+
+  {id:'med-chicken-bowls',tag:'Original',category:'Chicken',title:'Mediterranean Chicken Bowls',sub:'Turkish-spiced chicken, couscous & lemon crema',image:'https://geofffrink.github.io/flavor-terrorists/med-chicken-bowls.jpg',time:'35 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Chicken',items:[{amt:'2',name:'Chicken Breasts'},{amt:'to taste',name:'Turkish Seasoning'},{amt:'to taste',name:'Salt & Pepper'}]},
+      {label:'Tomato & Cucumber Salad',items:[{amt:'2',name:'Tomatoes, diced'},{amt:'1',name:'Cucumber, diced'},{amt:'2 tbsp',name:'White Wine Vinegar'},{amt:'to taste',name:'Salt & Pepper'}]},
+      {label:'Bowl',items:[{amt:'1 cup',name:'Grain Couscous, cooked'},{amt:'2',name:'Green Onions, sliced'}]},
+      {label:'Lemon Crema',items:[{amt:'½ cup',name:'Greek Yogurt'},{amt:'1–2',name:'Lemons, juiced'}]}
+    ],
+    steps:[
+      {title:'Make the Salad',text:'Dice tomatoes and cucumber. Toss together in a bowl with white wine vinegar and season with salt and pepper. Set aside to marinate.',img:null},
+      {title:'Season & Cook Chicken',text:'Cut chicken into strips. Season generously with salt, pepper, and Turkish seasoning. Heat a drizzle of oil in a skillet over medium-high heat. Cook chicken strips until golden and cooked through, 4–5 minutes per side.',img:null},
+      {title:'Cook the Couscous',text:'Prepare couscous according to package instructions. Fluff with a fork and season with a pinch of salt.',img:null},
+      {title:'Make Lemon Crema',text:'In a small bowl, mix Greek yogurt with the juice of 1–2 lemons until smooth and pourable. Taste and adjust lemon as needed.',img:null},
+      {title:'Assemble & Serve',text:'Plate couscous as the base, then add chicken on top. Drizzle with lemon crema. Add the tomato and cucumber salad on the side. Finish with sliced green onion and a final pinch of salt and pepper.',img:null},
+    ]},
+
+  {id:'salmon-tacos',tag:'Original',category:'Seafood',title:'Salmon Tacos',sub:'With pineapple-tomato salsa & sour cream',image:'https://geofffrink.github.io/flavor-terrorists/salmon-tacos.jpg',time:'30 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Salmon & Tacos',items:[{amt:'1½ lbs',name:'Salmon'},{amt:'8',name:'Flour Tortillas, toasted'},{amt:'to taste',name:'Salt & Pepper'}]},
+      {label:'Pineapple Salsa',items:[{amt:'1 cup',name:'Pineapple, diced'},{amt:'1',name:'Shallot, minced'},{amt:'2',name:'Tomatoes, diced'},{amt:'2 tbsp',name:'White Wine Vinegar'}]},
+      {label:'Toppings',items:[{amt:'as needed',name:'Sour Cream'},{amt:'2',name:'Lemons, for squeezing'}]}
+    ],
+    steps:[
+      {title:'Make the Salsa',text:'In a bowl, combine diced pineapple, minced shallot, diced tomatoes, and white wine vinegar. Season with salt and pepper and stir to combine. Let sit while you cook the salmon.',img:null},
+      {title:'Cook the Salmon',text:'Season salmon with salt and pepper. Cook skin-side down in a hot oiled skillet over medium-high heat until the skin is nice and crispy, 4–5 minutes. Flip and cook another 2–3 minutes. Remove from heat and shred using two forks.',img:null},
+      {title:'Warm the Tortillas',text:'Toast flour tortillas directly over a gas flame or in a dry skillet until lightly charred and warm.',img:null},
+      {title:'Assemble & Serve',text:'Layer shredded salmon onto toasted tortillas. Top with pineapple salsa and a dollop of sour cream. Squeeze lemon over everything before eating.',img:null},
+    ]},
+
+  {id:'beef-broccoli',tag:'Original',category:'Beef',title:'Beef & Broccoli',sub:'Soy-honey marinated flank steak with pineapple & cashews',image:'https://geofffrink.github.io/flavor-terrorists/beef-broccoli.jpg',time:'35 min',difficulty:'Medium',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Beef Marinade',items:[{amt:'1 lb',name:'Flank Steak, thinly sliced'},{amt:'1 tbsp',name:'Corn Starch'},{amt:'3 tbsp',name:'Soy Sauce'},{amt:'1 tbsp',name:'Honey'}]},
+      {label:'Stir-Fry Sauce',items:[{amt:'½ cup',name:'Chicken or Beef Broth'},{amt:'3 tbsp',name:'Soy Sauce'},{amt:'2 tbsp',name:'Brown Sugar'},{amt:'1 tbsp',name:'Corn Starch'}]},
+      {label:'Stir-Fry',items:[{amt:'2 cups',name:'Broccoli Florets'},{amt:'1 cup',name:'Carrots, sliced'},{amt:'1',name:'Sweet Onion, diced'},{amt:'4 cloves',name:'Garlic, minced'},{amt:'1 thumb',name:'Fresh Ginger, grated'},{amt:'3',name:'Green Onions (whites & greens separated)'},{amt:'½ cup',name:'Cashews'},{amt:'1 cup',name:'Pineapple chunks'},{amt:'as needed',name:'White Rice, cooked'}]}
+    ],
+    steps:[
+      {title:'Marinate the Beef',text:'Toss the sliced flank steak with cornstarch, soy sauce, and honey. Let marinate at least 15 minutes while you prep the rest.',img:null},
+      {title:'Mix the Sauce',text:'In a small bowl, whisk together broth, soy sauce, brown sugar, and cornstarch. Set aside.',img:null},
+      {title:'Cook the Beef',text:'Heat olive oil in a large skillet or wok over high heat. Add the marinated beef in a single layer. Sear without moving for 1–2 minutes, then toss until just cooked. Remove from pan and set aside.',img:null},
+      {title:'Cook the Vegetables',text:'In the same pan, add the onion and the white parts of the green onion. Cook 2 minutes. Add broccoli and ginger; cook another 2 minutes. Last, add the garlic and stir 30 seconds until fragrant.',img:null},
+      {title:'Bring It Together',text:'Return beef to the pan. Pour the sauce over everything and add cashews. Toss and cook until the sauce thickens, 2–3 minutes. Add pineapple chunks and toss once more.',img:null},
+      {title:'Serve',text:'Serve over white rice and top with the green parts of the scallions.',img:null},
+    ]},
+
+  {id:'bbq-chicken-quesadillas',tag:'Original',category:'Chicken',title:'BBQ Chicken Quesadillas',sub:'Instant Pot BBQ chicken with bell pepper & onion',image:'https://images.unsplash.com/photo-1618040996337-56904b7850b9?w=800&q=80',time:'40 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Instant Pot Chicken',items:[{amt:'2',name:'Chicken Breasts'},{amt:'1 cup',name:'Chicken Broth'},{amt:'1½ cups',name:'BBQ Sauce'},{amt:'1 tbsp',name:'Brown Sugar'},{amt:'1 tsp',name:'Garlic Powder'},{amt:'1 tsp',name:'Onion Powder'}]},
+      {label:'Quesadilla Fillings',items:[{amt:'1',name:'Bell Pepper, diced'},{amt:'1',name:'Onion, diced'},{amt:'1 tsp',name:'Taco Seasoning'},{amt:'as needed',name:'Shredded Cheese'},{amt:'8',name:'Flour Tortillas'}]},
+      {label:'For Serving',items:[{amt:'2',name:'Tomatoes, diced'},{amt:'as needed',name:'Sour Cream'},{amt:'as needed',name:'Taco Bell Hot Sauce'}]}
+    ],
+    steps:[
+      {title:'Pressure Cook the Chicken',text:'Add chicken breasts, chicken broth, BBQ sauce, brown sugar, garlic powder, and onion powder to the Instant Pot. Seal and cook on high pressure for 12–15 minutes. Natural release 10 minutes, then quick release.',img:null},
+      {title:'Shred & Sauce',text:'Remove chicken, shred with two forks, and return to the pot. Toss to coat in the BBQ sauce. Keep warm on the "Keep Warm" setting.',img:null},
+      {title:'Cook the Veggies',text:'In a skillet over medium-high heat, cook diced bell pepper and onion with a drizzle of oil and taco seasoning until softened and lightly charred, 5–7 minutes. Set aside.',img:null},
+      {title:'Build the Quesadillas',text:'Heat a clean skillet or griddle over medium heat. Place a tortilla down, add a layer of cheese, then BBQ chicken, cooked veggies, diced tomato, more cheese, then top with another tortilla.',img:null},
+      {title:'Grill & Serve',text:'Cook until the bottom tortilla is golden and crispy, 2–3 minutes. Carefully flip and cook another 2 minutes. Slice into wedges and serve with sour cream and Taco Bell sauce.',img:null},
+    ]},
+
+  {id:'sweet-potato-hash',tag:'Original',category:'Vegetarian',title:'Sweet Potato Hash',sub:'Air-fried sweet potato, avocado & balsamic onion',image:'https://geofffrink.github.io/flavor-terrorists/sweet-potato-hash.jpg',time:'25 min',difficulty:'Easy',servings:'2',calories:'—',
+    ingredientGroups:[
+      {label:'Main',items:[{amt:'1 large',name:'Sweet Potato'},{amt:'1 cup',name:'Cherry Tomatoes'},{amt:'1',name:'Avocado'},{amt:'1',name:'Red Onion'},{amt:'1 tbsp',name:'Balsamic Vinegar'},{amt:'to taste',name:'Garlic Powder'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Air Fry the Sweet Potato',text:'Cut sweet potato into ½-inch squares. Season with garlic powder, salt, and pepper. Air fry at 400°F until golden and tender, 12–15 minutes, shaking the basket halfway through.',img:null},
+      {title:'Prep the Toppings',text:'Cut cherry tomatoes in half. Cut avocado into ½-inch pieces.',img:null},
+      {title:'Sauté the Onion',text:'Cut red onion into 1-inch pieces. Cook in a pan over medium heat with a drizzle of oil and the balsamic vinegar, stirring occasionally, until softened and caramelized, about 8 minutes.',img:null},
+      {title:'Combine & Serve',text:'In a large bowl or on a plate, combine the air-fried sweet potato, cherry tomatoes, avocado, and balsamic onion. Toss gently and season with salt and pepper to taste.',img:null},
+    ]},
+
+  {id:'shredded-chicken-tacos',tag:'Original',category:'Chicken',title:'Shredded Chicken Tacos',sub:'Crockpot chicken with salsa & avocado-lime slaw',image:'https://geofffrink.github.io/flavor-terrorists/shredded-chicken-tacos.jpg',time:'4–6 hrs (Crockpot)',difficulty:'Easy',servings:'6',calories:'—',
+    ingredientGroups:[
+      {label:'Crockpot Chicken',items:[{amt:'2 lbs',name:'Chicken Breasts'},{amt:'1 jar (16 oz)',name:'Salsa'},{amt:'to taste',name:'Adobo or Salt'},{amt:'1 tsp',name:'Garlic Powder'},{amt:'1 tsp',name:'Cumin'}]},
+      {label:'Slaw',items:[{amt:'2 cups',name:'Cabbage, shredded'},{amt:'2',name:'Limes, juiced'},{amt:'¼ cup',name:'Cilantro, chopped'},{amt:'to taste',name:'Salt'}]},
+      {label:'For Serving',items:[{amt:'12',name:'Small Corn or Flour Tortillas'},{amt:'1',name:'Avocado, sliced'},{amt:'as needed',name:'Lime Wedges'}]}
+    ],
+    steps:[
+      {title:'Season & Load',text:'Season chicken breasts with adobo (or salt), then place in the crockpot. Sprinkle garlic powder and cumin over the top. Pour the entire jar of salsa over the chicken — no water needed.',img:null},
+      {title:'Slow Cook',text:'Cover and cook on LOW for 4–6 hours, until the chicken shreds easily with a fork.',img:null},
+      {title:'Drain & Shred',text:'When done, drain the excess liquid from the pot, keeping as much of the tomato sauce as possible. Shred chicken with two forks directly in the pot. Cover and keep warm.',img:null},
+      {title:'Make the Slaw',text:'Combine shredded cabbage, lime juice, cilantro, and salt in a bowl. Toss well and let sit 5 minutes.',img:null},
+      {title:'Char the Tortillas',text:'Heat tortillas about 30 seconds per side directly over a gas flame until slightly charred. Transfer to a plate and cover with a towel to keep warm.',img:null},
+      {title:'Assemble & Serve',text:'Place chicken on each tortilla, then top with slaw and sliced avocado. Serve with lime wedges.',img:null},
+    ]},
+
+  {id:'ny-strip-chimichurri',tag:'Original',category:'Beef',title:"Clark's NY Strip with Red Chimichurri",sub:'Marinated strip steak, sautéed onions & red chimichurri',image:'https://geofffrink.github.io/flavor-terrorists/ny-strip.jpg',time:'40 min + 2 hr marinade',difficulty:'Medium',servings:'2',calories:'—',
+    ingredientGroups:[
+      {label:'Steak & Marinade',items:[{amt:'2',name:'NY Strip Steaks'},{amt:'2 tbsp',name:'Worcestershire Sauce'},{amt:'2 cloves',name:'Garlic, minced'},{amt:'2 tbsp',name:'Soy Sauce'},{amt:'1 tbsp',name:'White Wine Vinegar'},{amt:'1 tsp',name:'Dijon Mustard'}]},
+      {label:'Red Chimichurri',items:[{amt:'1 bunch',name:'Fresh Parsley'},{amt:'1 bunch',name:'Fresh Oregano'},{amt:'3 cloves',name:'Garlic'},{amt:'½ cup',name:'Olive Oil'},{amt:'2 tbsp',name:'Red Wine Vinegar'},{amt:'1 tsp',name:'Red Pepper Flakes'},{amt:'to taste',name:'Salt'}]},
+      {label:'Sides',items:[{amt:'2 large',name:'Onions, sliced'},{amt:'1 tbsp',name:'Butter or Olive Oil'}]}
+    ],
+    steps:[
+      {title:'Marinate the Steak',text:'Whisk together Worcestershire sauce, minced garlic, soy sauce, white wine vinegar, and Dijon mustard. Pour over the steaks and marinate at least 2 hours in the refrigerator.',img:null},
+      {title:'Make the Chimichurri',text:'Finely chop parsley, oregano, and garlic (or pulse in a food processor). Combine with olive oil, red wine vinegar, red pepper flakes, and salt. Stir well and let sit at room temperature for at least 30 minutes.',img:null},
+      {title:'Sauté the Onions',text:'Melt butter in a skillet over medium-low heat. Add sliced onions and cook slowly, stirring occasionally, until caramelized, 20–25 minutes. Season with salt.',img:null},
+      {title:'Grill the Steak',text:'Remove steak from marinade and pat dry. Grill over high heat 3–5 minutes per side depending on thickness, until desired doneness. Let rest 5 minutes.',img:null},
+      {title:'Plate & Serve',text:'Slice steak and top with sautéed onions and a generous spoonful of red chimichurri. Garnish with fresh oregano.',img:null},
+    ]},
+
+  {id:'pf-changs-wraps',tag:'Original',category:'Chicken',title:"PF Chang's Chicken Lettuce Wraps",sub:'Ground chicken, hoisin, ginger & water chestnuts',image:'https://geofffrink.github.io/flavor-terrorists/lettuce-wraps.jpg',time:'25 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Filling',items:[{amt:'1 lb',name:'Ground Chicken'},{amt:'4 cloves',name:'Garlic, minced'},{amt:'1 tbsp',name:'Fresh Ginger, grated'},{amt:'¼ cup',name:'Hoisin Sauce'},{amt:'2 tbsp',name:'Soy Sauce (reduced sodium)'},{amt:'1 tbsp',name:'Rice Wine Vinegar'},{amt:'1 can',name:'Water Chestnuts, drained and chopped'},{amt:'3',name:'Green Onions, sliced'},{amt:'1 head',name:'Butter Lettuce, leaves separated'}]},
+      {label:'Dipping Sauce',items:[{amt:'1 tbsp',name:'Hot Asian Mustard Sauce'},{amt:'1 tbsp',name:'Pot Sticker Sauce (soy sauce, sugar & water)'},{amt:'1 tsp',name:'Chili Asian Garlic Sauce'}]}
+    ],
+    steps:[
+      {title:'Cook the Chicken',text:'Heat a drizzle of oil in a large skillet over medium-high heat. Add ground chicken and cook, breaking it up with a spoon, until cooked through with no pink remaining, 5–6 minutes.',img:null},
+      {title:'Add Aromatics & Sauce',text:'Add garlic and ginger to the pan; cook 1 minute. Stir in hoisin sauce, soy sauce, and rice wine vinegar. Toss to combine.',img:null},
+      {title:'Add Crunch',text:'Stir in chopped water chestnuts and most of the green onion. Cook 1–2 more minutes until heated through.',img:null},
+      {title:'Make Dipping Sauce',text:'Mix together the hot Asian mustard sauce, pot sticker sauce, and chili garlic sauce in a small bowl.',img:null},
+      {title:'Assemble & Serve',text:'Spoon the chicken filling into butter lettuce leaves. Garnish with remaining green onion. Serve with the dipping sauce on the side.',img:null},
+    ]},
+
+  {id:'chicago-hot-dog',tag:'Original',category:'Beef',title:'Chicago Hot Dog',sub:'Poppy seed bun, all the fixings — never ketchup',image:'https://geofffrink.github.io/flavor-terrorists/chicago-hot-dog.jpg',time:'10 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'The Dog',items:[{amt:'4',name:'All-Beef Franks'},{amt:'4',name:'Poppy Seed Hot Dog Buns'},{amt:'to taste',name:'Yellow Mustard'},{amt:'to taste',name:'Green Sweet Relish'},{amt:'to taste',name:'Sweet Onion, diced'},{amt:'2',name:'Tomatoes, cut into wedges'},{amt:'4 spears',name:'Dill Pickle Spears'},{amt:'NO',name:'Ketchup (this is Chicago)'}]}
+    ],
+    steps:[
+      {title:'Steps Coming Soon',text:'This one\'s an assembly job — use the ingredients list as your guide. Steam the buns, grill or steam the dogs, and pile on all the fixings in the classic Chicago order. And absolutely no ketchup.',img:null},
+    ]},
+
+
+  {id:'steak-bites',tag:'Original',category:'Beef',title:'Garlic Butter Steak Bites',sub:'Pan-seared with herb garlic butter',image:'https://geofffrink.github.io/flavor-terrorists/steak-bites.jpg',time:'20 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Main',items:[{amt:'1½ lbs',name:'Steak (sirloin or ribeye), cut into bite-size cubes'},{amt:'4 tbsp',name:'Butter'},{amt:'4 cloves',name:'Garlic, minced'},{amt:'2 sprigs',name:'Fresh Rosemary or Thyme'},{amt:'to taste',name:'Salt & Pepper'},{amt:'1 tbsp',name:'Olive Oil'}]}
+    ],
+    steps:[
+      {title:'Steps Coming Soon',text:'Full step-by-step instructions will be added soon! In the meantime, the key is a screaming hot pan, dry steak cubes, and basting with garlic butter at the end. Reference: badbatchbaking.com/garlic-butter-steak-bites',img:null},
+    ]},
+
+  {id:'garlic-dijon-salmon',tag:'Original',category:'Seafood',title:'Garlic Dijon Salmon',sub:'with Sautéed Summer Vegetables over Jasmine Rice',image:'https://geofffrink.github.io/flavor-terrorists/garlic-dijon-salmon.jpg',time:'35 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Salmon Marinade',items:[{amt:'4 fillets',name:'Salmon'},{amt:'3 cloves',name:'Garlic, minced'},{amt:'2 tbsp',name:'Lemon Juice, fresh'},{amt:'2 tbsp',name:'Dijon Mustard'},{amt:'1 tbsp',name:'Honey'},{amt:'2 tbsp',name:'Olive Oil'},{amt:'2 tbsp',name:'Fresh Italian Parsley, chopped'}]},
+      {label:'Summer Vegetables',items:[{amt:'1',name:'Sweet Onion, diced'},{amt:'1 cup',name:'Corn Kernels'},{amt:'1',name:'Zucchini, diced'},{amt:'1',name:'Red Bell Pepper, diced'},{amt:'1',name:'Green Bell Pepper, diced'},{amt:'1 tbsp',name:'Butter'},{amt:'squeeze',name:'Fresh Lemon Juice'}]},
+      {label:'For Serving',items:[{amt:'2 cups',name:'Jasmine Rice, cooked'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Make the Marinade',text:'In a bowl, combine olive oil, fresh lemon juice, honey, Dijon mustard, chopped Italian parsley, and minced garlic. Whisk together until smooth.',img:null},
+      {title:'Marinate the Salmon',text:'Brush the salmon fillets generously with the garlic Dijon marinade. Let sit 10–15 minutes while you prep the vegetables.',img:null},
+      {title:'Cook the Salmon',text:'Cook salmon in a hot oiled skillet over medium-high heat (or in an air fryer at 400°F for 8–10 minutes) until cooked through and slightly caramelized on top. The honey will help it brown beautifully.',img:null},
+      {title:'Sauté the Vegetables',text:'Heat olive oil in a large skillet over medium-high heat. Add diced onion and sliced garlic; cook 2 minutes. Add bell peppers, zucchini, and corn. Season with salt and pepper. Cook until vegetables are just softened, about 5 minutes. Finish with a squeeze of lemon juice and a tablespoon of butter; toss to coat.',img:null},
+      {title:'Plate & Serve',text:'Serve salmon and sautéed vegetables over jasmine rice.',img:null},
+    ]},
+
+  {id:'seven-layer-dip',tag:'Original',category:'Sides',title:'Frink Family 7-Layer Dip',sub:'The legendary party dip — make it the night before',image:'https://geofffrink.github.io/flavor-terrorists/seven-layer-dip.jpg',time:'20 min + overnight chill',difficulty:'Easy',servings:'8',calories:'—',
+    ingredientGroups:[
+      {label:'Layers (in order)',items:[{amt:'1 can',name:'Frito Bean Dip'},{amt:'3',name:'Avocados'},{amt:'2 tsp',name:'Lemon Juice'},{amt:'½ cup',name:'Mayonnaise'},{amt:'½ cup',name:'Sour Cream'},{amt:'1 pkg',name:'Taco Seasoning'},{amt:'2 cups',name:'Shredded 4-Cheese Mix'},{amt:'1½–2',name:'Tomatoes, diced'},{amt:'2',name:'Green Onions, chopped'}]},
+      {label:'For Serving',items:[{amt:'as needed',name:'Tortilla Chips'}]}
+    ],
+    steps:[
+      {title:'Layer 1 & 2',text:'Spread the bean dip evenly across the bottom of a pie pan. Then mash the avocados with lemon juice until smooth and spread over the bean layer.',img:null},
+      {title:'Layer 3',text:'In a bowl, mix sour cream, mayonnaise, and the entire packet of taco seasoning until smooth. Spread over the avocado layer.',img:null},
+      {title:'Layer 4, 5 & 6',text:'Top with the shredded 4-cheese mix, then sprinkle diced tomatoes evenly over the cheese, followed by the chopped green onions.',img:null},
+      {title:'Chill Overnight',text:'Cover with plastic wrap and refrigerate overnight. This is the secret — the layers meld together and the flavors develop dramatically.',img:null},
+      {title:'Serve',text:'Serve cold, straight from the fridge, with a mountain of tortilla chips.',img:null},
+    ]},
+
+  {id:'macaroni-salad',tag:'Original',category:'Sides',title:'Frink Macaroni Salad',sub:'Classic family recipe with Miracle Whip',image:'https://geofffrink.github.io/flavor-terrorists/macaroni-salad.jpg',time:'25 min + chill',difficulty:'Easy',servings:'8',calories:'—',
+    ingredientGroups:[
+      {label:'Salad',items:[{amt:'1 lb',name:'Elbow Macaroni, cooked and cooled'},{amt:'½',name:'Yellow Onion, finely diced'},{amt:'3',name:'Green Onions, sliced'},{amt:'2 stalks',name:'Celery, diced'}]},
+      {label:'Dressing',items:[{amt:'to taste',name:'Miracle Whip'},{amt:'to taste',name:'Yellow Mustard'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Steps Coming Soon',text:'Full steps coming soon! Cook and cool the macaroni, mix the dressing ingredients to taste, toss with the veggies, and chill at least 1 hour before serving.',img:null},
+    ]},
+
+  {id:'tuscan-pasta',tag:'Original',category:'Pasta',title:'One-Pot Creamy Tuscan Pasta',sub:'Sun-dried tomatoes, spinach & parmesan in one pot',image:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800&q=80',time:'35 min',difficulty:'Easy',servings:'4',calories:'—',
+    ingredientGroups:[
+      {label:'Aromatics',items:[{amt:'2 tbsp',name:'Unsalted Butter'},{amt:'1',name:'Shallot, minced'},{amt:'4 cloves',name:'Garlic, minced'},{amt:'2 tbsp',name:'Tomato Paste'},{amt:'1 tsp',name:'Dried Oregano'},{amt:'1 tsp',name:'Paprika'}]},
+      {label:'Pasta',items:[{amt:'2 cups',name:'Chicken Broth'},{amt:'1 cup',name:'Whole Milk'},{amt:'8 oz',name:'Penne Pasta'},{amt:'1 cup',name:'Cherry Tomatoes, halved'},{amt:'½ cup',name:'Sun-Dried Tomatoes (in oil), drained'}]},
+      {label:'Finish',items:[{amt:'1 cup',name:'Fresh Baby Spinach'},{amt:'½ cup',name:'Parmesan Cheese, grated'},{amt:'2 tbsp',name:'Fresh Italian Parsley, chopped'},{amt:'to taste',name:'Salt & Pepper'}]}
+    ],
+    steps:[
+      {title:'Start the Base',text:'Melt butter in a large pot or Dutch oven over medium heat. Add the shallot and garlic; cook, stirring, until softened, 2–3 minutes.',img:null},
+      {title:'Build Flavor',text:'Stir in tomato paste, dried oregano, and paprika. Cook 1 minute until fragrant and the tomato paste darkens slightly.',img:null},
+      {title:'Add Liquid & Pasta',text:'Pour in the chicken broth and milk. Stir in the penne pasta, halved cherry tomatoes, and sun-dried tomatoes. Season with salt and pepper.',img:null},
+      {title:'Simmer',text:'Bring to a boil, then reduce heat and simmer uncovered for 18–20 minutes, stirring frequently, until the pasta is tender and the sauce has thickened. Add a splash more milk if it gets too thick.',img:null},
+      {title:'Finish & Serve',text:'Stir in baby spinach and let wilt, about 1 minute. Remove from heat and stir in grated parmesan and chopped parsley. Taste and season. Serve immediately.',img:null},
+    ]},
+];
+
+let current = null, cookStep = 0, activeTab = 'all';
+// tabs: all | favorites | explore
+
+function getCooks(id) {
+  return parseInt(localStorage.getItem('cooks_'+id)||'0');
+}
+function setCooks(id, n) {
+  localStorage.setItem('cooks_'+id, n);
+}
+
+function buildHome() { renderGrid(); }
+
+function setTab(tab, btn) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-bar-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('recipe-grid');
+  grid.innerHTML = '';
+
+  let filtered = RECIPES.map(r => ({...r, cooks: getCooks(r.id)}));
+
+  if (activeTab === 'favorites') {
+    filtered = filtered.filter(r => r.cooks > 0).sort((a,b) => b.cooks - a.cooks);
+  } else if (activeTab === 'explore') {
+    filtered = filtered.filter(r => r.cooks === 0).sort(() => Math.random() - 0.5);
+  } else {
+    filtered = filtered.sort((a,b) => a.title.localeCompare(b.title));
+  }
+
+  document.getElementById('recipe-count-label').textContent = `${RECIPES.length} recipes`;
+
+  if (filtered.length === 0) {
+    const msgs = {
+      favorites: ['⭐', 'No favorites yet', 'Cook a recipe and tap the counter on the detail page to log it here.'],
+      explore:   ['🎉', "You've tried everything!", 'Incredible — there are no unexplored recipes left.'],
+    };
+    const [icon, title, sub] = msgs[activeTab] || ['🍴','Nothing here','Try a different tab.'];
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">${icon}</div><div class="es-title">${title}</div><div class="es-sub">${sub}</div></div>`;
+    return;
+  }
+
+  filtered.forEach((r) => {
+    const card = document.createElement('div');
+    card.className = `recipe-card cat-${r.category}`;
+    card.onclick = () => openDetail(r.id);
+    const catEmoji = {Beef:'🥩',Chicken:'🍗',Pork:'🐷',Seafood:'🦐',Turkey:'🦃',Vegetarian:'🥗',Pasta:'🍝',Sides:'🥣'}[r.category]||'🍴';
+    const cookBadge = getCardBadge(r.cooks);
+    const pills = [r.time ? `⏱ ${r.time}` : null, r.calories && r.calories !== '—' ? `🔥 ${r.calories}` : null].filter(Boolean);
+    card.innerHTML = `<img class="card-img" src="${r.image}" alt="${r.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="img-placeholder" style="display:none">${catEmoji}</div><div class="card-body"><div class="card-tag">${r.tag} · ${r.category}</div><div class="card-title">${r.title}</div><div class="card-sub">${r.sub}</div>${cookBadge}<div class="card-pills">${pills.map(p=>`<span class="card-pill">${p}</span>`).join('')}</div></div>`;
+    grid.appendChild(card);
+  });
+}
+
+
+
+function openDetail(id) {
+  current = RECIPES.find(r => r.id === id);
+  if (!current) return;
+  const r = current;
+  document.getElementById('d-img').src = r.image;
+  document.getElementById('d-src').textContent = `${r.tag} · ${r.category}`;
+  document.getElementById('d-title').textContent = r.title;
+  document.getElementById('d-sub').textContent = r.sub;
+  document.getElementById('d-meta').innerHTML = [{v:r.time||'—',l:'Time'},{v:r.difficulty||'—',l:'Level'},{v:r.servings||'—',l:'Serves'},{v:r.calories||'—',l:'Calories'}].map(m=>`<div class="meta-cell"><span class="meta-val">${m.v}</span><span class="meta-lbl">${m.l}</span></div>`).join('');
+  const ingEl = document.getElementById('tab-ingredients');
+  ingEl.innerHTML = '';
+  (r.ingredientGroups||[]).forEach(g => {
+    if (g.label) ingEl.innerHTML += `<div class="ing-group-label">${g.label}</div>`;
+    g.items.forEach(it => ingEl.innerHTML += `<div class="ing-row"><span class="ing-dot"></span><span class="ing-amt">${it.amt}</span><span class="ing-name">${it.name}</span></div>`);
+  });
+  const stepsEl = document.getElementById('tab-steps');
+  stepsEl.innerHTML = (!r.steps||!r.steps.length)
+    ? `<div class="no-steps">🍴 Cooking steps coming soon — we'll add these as we build out the cookbook!</div>`
+    : r.steps.map((s,i)=>`<div class="step-row"><div class="step-num">${i+1}</div><div><div class="step-label">${s.title}</div><div class="step-text">${s.text}</div>${s.img?`<img class="step-img" src="${s.img}" alt="${s.title}" loading="lazy">`:''}  </div></div>`).join('');
+  switchTab('ingredients', document.querySelector('.tab-btn'));
+  updateCookCountDisplay();
+  show('detail');
+  document.querySelector('#detail .detail-body').scrollTop = 0;
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const btns = document.querySelectorAll('.tab-btn');
+  (name === 'ingredients' ? btns[0] : btns[1]).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function getBadge(n) {
+  if (n === 0) return '<span class="recipe-badge badge-new">✨ Never made</span>';
+  if (n < 3)  return '<span class="recipe-badge badge-regular">🍳 Making it</span>';
+  if (n < 7)  return '<span class="recipe-badge badge-regular">🔥 Regular</span>';
+  if (n < 15) return '<span class="recipe-badge badge-fave">⭐ Favorite</span>';
+  return '<span class="recipe-badge badge-legend">👑 Legend</span>';
+}
+
+function getCardBadge(n) {
+  if (n === 0) return '';
+  if (n < 3)  return `<div class="recipe-badge badge-regular" style="margin-top:3px">🍳 ${n}×</div>`;
+  if (n < 7)  return `<div class="recipe-badge badge-regular" style="margin-top:3px">🔥 ${n}×</div>`;
+  if (n < 15) return `<div class="recipe-badge badge-fave" style="margin-top:3px">⭐ ${n}×</div>`;
+  return `<div class="recipe-badge badge-legend" style="margin-top:3px">👑 ${n}×</div>`;
+}
+
+function updateCookCountDisplay() {
+  if (!current) return;
+  const n = getCooks(current.id);
+  document.getElementById('cook-count-num').textContent = n;
+  document.getElementById('cook-minus').disabled = n === 0;
+}
+
+function adjustCook(delta) {
+  if (!current) return;
+  const n = Math.max(0, getCooks(current.id) + delta);
+  setCooks(current.id, n);
+  updateCookCountDisplay();
+  const el = document.getElementById('cook-count-num');
+  el.style.transform = delta > 0 ? 'scale(1.4)' : 'scale(0.75)';
+  el.style.transition = 'transform 0.15s';
+  setTimeout(() => { el.style.transform = 'scale(1)'; }, 200);
+  renderGrid();
+}
+
+function goHome() { show('home'); renderGrid(); }
+
+function startCooking() {
+  if (!current?.steps?.length) { alert("No cooking steps yet for this recipe — coming soon!"); return; }
+  cookStep = 0;
+  document.getElementById('ck-prev').style.display = '';
+  document.getElementById('ck-next').style.display = '';
+  show('cooking');
+  renderCookStep();
+}
+
+function exitCooking() { show('detail'); }
+
+function renderCookStep() {
+  const steps = current.steps, s = steps[cookStep], total = steps.length;
+  document.getElementById('ck-counter').textContent = `Step ${cookStep+1} of ${total}`;
+  document.getElementById('ck-fill').style.width = `${((cookStep+1)/total)*100}%`;
+  document.getElementById('ck-prev').disabled = cookStep === 0;
+  document.getElementById('ck-next').textContent = cookStep === total-1 ? '✓ Done' : 'Next →';
+  document.getElementById('ck-content').innerHTML = `<div class="cook-big-num">${String(cookStep+1).padStart(2,'0')}</div><div class="cook-label">${s.title}</div><div class="cook-text">${s.text}</div>${s.img?`<img class="cook-step-img" src="${s.img}" alt="${s.title}">`:''}`;
+  document.getElementById('ck-content').scrollTop = 0;
+}
+
+function cookNav(dir) {
+  const steps = current.steps;
+  if (dir === 1 && cookStep === steps.length-1) {
+    document.getElementById('ck-content').innerHTML = `<div class="cook-done"><div class="done-emoji">🎉</div><div class="done-h">Bon Appétit!</div><div class="done-p">You just made<br><em>${current.title}</em></div><button class="done-back" onclick="exitCooking()">← Back to Recipe</button></div>`;
+    document.getElementById('ck-fill').style.width = '100%';
+    document.getElementById('ck-prev').style.display = 'none';
+    document.getElementById('ck-next').style.display = 'none';
+    return;
+  }
+  cookStep = Math.max(0, Math.min(steps.length-1, cookStep+dir));
+  renderCookStep();
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('hidden', s.id !== id));
+}
+
+buildHome();
+</script>
+</body>
+</html>

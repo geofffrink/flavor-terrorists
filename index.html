@@ -1155,8 +1155,15 @@ function selectTime(t) {
     const el = document.getElementById('time-' + id);
     if (el) el.classList.toggle('selected', selectedTime === id);
   });
-  // If a protein is already selected, re-filter immediately
-  if (selectedProtein) filterMood(selectedProtein);
+  if (!selectedTime) return; // deselected, do nothing
+  // Filter all recipes by time (with protein if already selected)
+  const timeLabels = { quick:'⚡ Quick Cook (≤ 30 min)', medium:'🕐 Medium Cook (30–45 min)', any:'😌 Any Length' };
+  if (selectedProtein) {
+    filterMood(selectedProtein); // re-filter with both
+  } else {
+    // filter all recipes by time only
+    renderMoodResults(r => true, timeLabels[t]);
+  }
 }
 
 function applyTimeFilter(recipes) {

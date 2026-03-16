@@ -700,22 +700,44 @@ function setTab(tab, btn) {
 }
 
 function renderGrid() {
-  const filtered = activeFilter === 'All' ? RECIPES : RECIPES.filter(r => r.category === activeFilter);
-  document.getElementById('recipe-count-label').textContent = `${RECIPES.length} recipes`;
   const grid = document.getElementById('recipe-grid');
   grid.innerHTML = '';
-  filtered.forEach((r, i) => {
-    const isWide = i === 0 && activeFilter === 'All';
+
+  let filtered = RECIPES.map(r => ({...r, cooks: getCooks(r.id)}));
+
+  if (activeTab === 'favorites') {
+    filtered = filtered.filter(r => r.cooks > 0).sort((a,b) => b.cooks - a.cooks);
+  } else if (activeTab === 'explore') {
+    filtered = filtered.filter(r => r.cooks === 0).sort(() => Math.random() - 0.5);
+  } else {
+    filtered = filtered.sort((a,b) => b.cooks - a.cooks);
+  }
+
+  document.getElementById('recipe-count-label').textContent = `${RECIPES.length} recipes`;
+
+  if (filtered.length === 0) {
+    const msgs = {
+      favorites: ['⭐', 'No favorites yet', 'Cook a recipe and tap the counter on the detail page to log it here.'],
+      explore:   ['🎉', "You've tried everything!", 'Incredible — there are no unexplored recipes left.'],
+    };
+    const [icon, title, sub] = msgs[activeTab] || ['🍴','Nothing here','Try a different tab.'];
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">${icon}</div><div class="es-title">${title}</div><div class="es-sub">${sub}</div></div>`;
+    return;
+  }
+
+  filtered.forEach((r) => {
     const card = document.createElement('div');
-    card.className = 'recipe-card' + (isWide ? ' wide' : '');
+    card.className = `recipe-card cat-${r.category}`;
     card.onclick = () => openDetail(r.id);
-    const pills = [r.time ? `⏱ ${r.time}` : null, r.calories && r.calories !== '—' ? `🔥 ${r.calories}` : null].filter(Boolean);
     const catEmoji = {Beef:'🥩',Chicken:'🍗',Pork:'🐷',Seafood:'🦐',Turkey:'🦃',Vegetarian:'🥗',Pasta:'🍝',Sides:'🥣'}[r.category]||'🍴';
-    card.className += ` cat-${r.category}`;
-    card.innerHTML = `<img class="card-img" src="${r.image}" alt="${r.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="img-placeholder" style="display:none">${catEmoji}</div><div class="card-body"><div class="card-tag">${r.tag} · ${r.category}</div><div class="card-title">${r.title}</div><div class="card-sub">${r.sub}</div><div class="card-pills">${pills.map(p=>`<span class="card-pill">${p}</span>`).join('')}</div></div>`;
+    const cookBadge = r.cooks > 0 ? `<div class="cook-badge">🍳 × ${r.cooks}</div>` : '';
+    const pills = [r.time ? `⏱ ${r.time}` : null, r.calories && r.calories !== '—' ? `🔥 ${r.calories}` : null].filter(Boolean);
+    card.innerHTML = `<img class="card-img" src="${r.image}" alt="${r.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="img-placeholder" style="display:none">${catEmoji}</div><div class="card-body"><div class="card-tag">${r.tag} · ${r.category}</div><div class="card-title">${r.title}</div><div class="card-sub">${r.sub}</div>${cookBadge}<div class="card-pills">${pills.map(p=>`<span class="card-pill">${p}</span>`).join('')}</div></div>`;
     grid.appendChild(card);
   });
 }
+
+
 
 function openDetail(id) {
   current = RECIPES.find(r => r.id === id);

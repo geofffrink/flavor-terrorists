@@ -408,18 +408,6 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
   font-weight:500; cursor:pointer; text-align:center;
 }
 
-/* ── TIME FILTER ── */
-.mood-section-label {
-  font-size:9px; font-weight:600; letter-spacing:3px; text-transform:uppercase;
-  color:rgba(255,255,255,0.35); padding:4px 0 2px;
-  grid-column:1/-1;
-}
-.mood-tile.time-tile { padding:14px 10px 12px; }
-.mood-tile.time-tile.selected {
-  background:rgba(201,150,42,0.3); border-color:rgba(201,150,42,0.7);
-}
-.mood-tile.time-tile .mood-emoji { font-size:26px; }
-.mood-tile.time-tile .mood-label { font-size:11px; }
 
 /* ── MOOD RESULTS BAR ── */
 .mood-results-bar {
@@ -511,23 +499,7 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
       <div class="mood-label">Wildcard</div>
       <div class="mood-count">Something new</div>
     </div>
-    <!-- Time filter -->
-    <div class="mood-section-label">How much time do you have?</div>
-    <div class="mood-tile time-tile" id="time-quick" onclick="selectTime('quick')">
-      <div class="mood-emoji">⚡</div>
-      <div class="mood-label">Quick Cook</div>
-      <div class="mood-count">≤ 30 min</div>
-    </div>
-    <div class="mood-tile time-tile" id="time-medium" onclick="selectTime('medium')">
-      <div class="mood-emoji">🕐</div>
-      <div class="mood-label">Medium Cook</div>
-      <div class="mood-count">30–45 min</div>
-    </div>
-    <div class="mood-tile time-tile" id="time-any" onclick="selectTime('any')">
-      <div class="mood-emoji">😌</div>
-      <div class="mood-label">Don't Care</div>
-      <div class="mood-count">Any length</div>
-    </div>
+
     <div class="mood-tile everything" onclick="document.getElementById('mood-results-bar').classList.remove('visible');document.getElementById('home-tab-bar').style.display='';show('home');renderGrid()">
       <div class="mood-emoji">📖</div>
       <div class="mood-label">Show me everything — I'll decide</div>
@@ -1115,13 +1087,7 @@ const WILDCARDS = [
 let lastWildcard = -1;
 
 function enterMood() {
-  // Reset time selection
-  selectedTime = null;
   selectedProtein = null;
-  ['quick','medium','any'].forEach(id => {
-    const el = document.getElementById('time-' + id);
-    if (el) el.classList.remove('selected');
-  });
   // Update mood page recipe counts
   const moodMap = {
     'mc-steak':   r => r.category === 'Beef',
@@ -1139,42 +1105,7 @@ function enterMood() {
   show('mood');
 }
 
-let selectedTime = null;
 let selectedProtein = null;
-
-function getMinutes(timeStr) {
-  if (!timeStr || timeStr === '—') return 999;
-  // Extract first number found
-  const m = timeStr.match(/(\d+)/);
-  return m ? parseInt(m[1]) : 999;
-}
-
-function selectTime(t) {
-  selectedTime = selectedTime === t ? null : t; // toggle
-  ['quick','medium','any'].forEach(id => {
-    const el = document.getElementById('time-' + id);
-    if (el) el.classList.toggle('selected', selectedTime === id);
-  });
-  if (!selectedTime) return; // deselected, do nothing
-  // Filter all recipes by time (with protein if already selected)
-  const timeLabels = { quick:'⚡ Quick Cook (≤ 30 min)', medium:'🕐 Medium Cook (30–45 min)', any:'😌 Any Length' };
-  if (selectedProtein) {
-    filterMood(selectedProtein); // re-filter with both
-  } else {
-    // filter all recipes by time only
-    renderMoodResults(r => true, timeLabels[t]);
-  }
-}
-
-function applyTimeFilter(recipes) {
-  if (!selectedTime || selectedTime === 'any') return recipes;
-  return recipes.filter(r => {
-    const mins = getMinutes(r.time);
-    if (selectedTime === 'quick')  return mins <= 30;
-    if (selectedTime === 'medium') return mins > 30 && mins <= 45;
-    return true;
-  });
-}
 
 function renderMoodResults(proteinFn, label) {
   show('home');
@@ -1184,7 +1115,7 @@ function renderMoodResults(proteinFn, label) {
   const grid = document.getElementById('recipe-grid');
   grid.innerHTML = '';
   let filtered = RECIPES.filter(proteinFn).map(r => ({...r, cooks: getCooks(r.id)}));
-  filtered = applyTimeFilter(filtered).sort((a,b) => b.cooks - a.cooks);
+  filtered = filtered.sort((a,b) => b.cooks - a.cooks);
   document.getElementById('recipe-count-label').textContent = filtered.length + ' recipes';
   if (filtered.length === 0) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">🤷</div><div class="es-title">No matches</div><div class="es-sub">Try a different time filter or protein.</div></div>`;
@@ -1220,15 +1151,12 @@ function filterMood(type) {
     turkey:'🦃 Turkey', seafood:'🐟 Fish & Seafood',
     pasta:'🍝 Pasta', veggie:'🥗 Veggie & Sides'
   };
-  const timeLabel = selectedTime === 'quick' ? ' · ⚡ Quick' : selectedTime === 'medium' ? ' · 🕐 Medium' : '';
   const fn = filters[type];
-  if (fn) renderMoodResults(fn, (labels[type]||type) + timeLabel);
+  if (fn) renderMoodResults(fn, labels[type]||type);
 }
 
 function surpriseMe() {
-  let pool = applyTimeFilter(RECIPES);
-  if (pool.length === 0) pool = RECIPES;
-  const r = pool[Math.floor(Math.random() * pool.length)];
+  const r = RECIPES[Math.floor(Math.random() * RECIPES.length)];
   show('home');
   renderGrid();
   setTimeout(() => openDetail(r.id), 50);

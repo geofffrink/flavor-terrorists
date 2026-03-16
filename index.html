@@ -97,7 +97,7 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 .badge-fave    { background:rgba(201,150,42,0.18); color:#9A6E10; }
 .badge-legend  { background:linear-gradient(90deg,rgba(201,150,42,0.25),rgba(193,59,24,0.2)); color:#7A4010; border:1px solid rgba(201,150,42,0.4); }
 .recipe-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:10px 10px 40px; }
-.recipe-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+.recipe-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:6px; }
 .recipe-card { background:white; border-radius:12px; overflow:hidden; cursor:pointer; box-shadow:var(--card-shadow); transition:transform 0.18s; -webkit-user-select:none; }
 .recipe-card:active { transform:scale(0.965); }
 .recipe-card.wide { grid-column:unset; display:block; }
@@ -266,7 +266,7 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 
 /* iPad portrait (768px) */
 @media (max-width: 900px) {
-  .recipe-grid { grid-template-columns: repeat(4, 1fr); gap:10px; }
+  .recipe-grid { grid-template-columns: repeat(5, 1fr); gap:8px; }
   .cover-title { font-size: clamp(44px, 10vw, 72px); }
   .cover-title em { font-size: clamp(54px, 13vw, 90px); }
   .detail-title { font-size: 15px; }
@@ -275,7 +275,7 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 
 /* iPad mini / small tablet portrait */
 @media (max-width: 680px) {
-  .recipe-grid { grid-template-columns: repeat(3, 1fr); gap:8px; }
+  .recipe-grid { grid-template-columns: repeat(4, 1fr); gap:6px; }
   .home-title { font-size: clamp(18px, 4vw, 26px); }
   .cover-title { font-size: clamp(38px, 9vw, 60px); }
   .cover-title em { font-size: clamp(46px, 11vw, 76px); }
@@ -288,7 +288,7 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 
 /* Phone (480px and below) */
 @media (max-width: 480px) {
-  .recipe-grid { grid-template-columns: repeat(2, 1fr); gap:8px; }
+  .recipe-grid { grid-template-columns: repeat(3, 1fr); gap:6px; }
   .home-header { padding: 12px 14px 10px; }
   .home-title { font-size: clamp(16px, 4vw, 22px); }
   .home-meta { font-size: 10px; }
@@ -313,12 +313,12 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 
 /* iPad landscape & small laptops — keep 6 col */
 @media (min-width: 901px) and (max-width: 1100px) {
-  .recipe-grid { grid-template-columns: repeat(5, 1fr); gap:9px; }
+  .recipe-grid { grid-template-columns: repeat(6, 1fr); gap:8px; }
 }
 
 /* Large screens — full 6 col */
 @media (min-width: 1101px) {
-  .recipe-grid { grid-template-columns: repeat(6, 1fr); gap:8px; }
+  .recipe-grid { grid-template-columns: repeat(8, 1fr); gap:6px; }
 }
 
 /* ── MOOD PAGE ── */

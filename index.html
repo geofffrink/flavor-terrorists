@@ -1017,7 +1017,7 @@ const RECIPES = [
       {title:'Assemble & Serve',text:'Spoon the warm chicken filling into butter lettuce leaves. Garnish with remaining green onions. Serve immediately with dipping sauce on the side.',img:null},
 ]},
 
-  {id:'chicago-hot-dog',tag:'Original',category:'Ground Beef',title:'Chicago Hot Dog',sub:'Poppy seed bun, all the fixings — never ketchup',image:'https://geofffrink.github.io/flavor-terrorists/chicago-hot-dog.jpg',time:'10 min',difficulty:'Easy',servings:'4',calories:'—',
+  {id:'chicago-hot-dog',tag:'Original',category:'Grill',title:'Chicago Hot Dog',sub:'Poppy seed bun, all the fixings — never ketchup',image:'https://geofffrink.github.io/flavor-terrorists/chicago-hot-dog.jpg',time:'10 min',difficulty:'Easy',servings:'4',calories:'—',
     ingredientGroups:[
       {label:'The Dog',items:[{amt:'4',name:'All-Beef Franks'},{amt:'4',name:'Poppy Seed Hot Dog Buns'},{amt:'to taste',name:'Yellow Mustard'},{amt:'to taste',name:'Green Sweet Relish'},{amt:'to taste',name:'Sweet Onion, diced'},{amt:'2',name:'Tomatoes, cut into wedges'},{amt:'4 spears',name:'Dill Pickle Spears'},{amt:'NO',name:'Ketchup (this is Chicago)'}]}
     ],
@@ -1285,7 +1285,7 @@ function toggleStar() {
 
 function getCardBadge(n) { return ''; } // stub — no longer used for display
 
-const PROTEINS = ['All','Steak','Chicken','Pork','Ground Beef','Turkey','Seafood','Pasta','Veggie & Sides'];
+const PROTEINS = ['All','Steak','Chicken','Pork','Ground Beef','Turkey','Seafood','Pasta','Veggie & Sides','Grill'];
 
 function buildFilterPills() {
   const bar = document.getElementById('filter-pills');
@@ -1367,7 +1367,7 @@ function applyFilters() {
     const card = document.createElement('div');
     card.className = `recipe-card cat-${r.category.replace(/ /g,'-')}`;
     card.onclick = () => openDetail(r.id);
-    const catEmoji = {'Steak':'🥩','Chicken':'🍗','Pork':'🐷','Seafood':'🦐','Turkey':'🦃','Vegetarian':'🥗','Pasta':'🍝','Sides':'🥣','Ground Beef':'🍔'}[r.category]||'🍴';
+    const catEmoji = {'Steak':'🥩','Chicken':'🍗','Pork':'🐷','Seafood':'🦐','Turkey':'🦃','Vegetarian':'🥗','Pasta':'🍝','Sides':'🥣','Ground Beef':'🍔','Grill':'🌭'}[r.category]||'🍴';
     const cookBadge = getCardBadge(r.cooks);
     const noteBadge = '';
     const pills = [r.time ? `⏱ ${r.time}` : null, r.calories && r.calories !== '—' ? `🔥 ${r.calories}` : null].filter(Boolean);
@@ -1406,7 +1406,7 @@ function switchView(view) {
       const card = document.createElement('div');
       card.className = `recipe-card cat-${r.category.replace(/ /g,'-')}`;
       card.onclick = () => openDetail(r.id);
-      const catEmoji = {'Steak':'🥩','Chicken':'🍗','Pork':'🐷','Seafood':'🦐','Turkey':'🦃','Vegetarian':'🥗','Pasta':'🍝','Sides':'🥣','Ground Beef':'🍔'}[r.category]||'🍴';
+      const catEmoji = {'Steak':'🥩','Chicken':'🍗','Pork':'🐷','Seafood':'🦐','Turkey':'🦃','Vegetarian':'🥗','Pasta':'🍝','Sides':'🥣','Ground Beef':'🍔','Grill':'🌭'}[r.category]||'🍴';
       const cookBadge = getCardBadge(r.cooks);
       const pills = [r.time ? `⏱ ${r.time}` : null].filter(Boolean);
       card.innerHTML = `<img class="card-img" src="${r.image}" alt="${r.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="img-placeholder" style="display:none">${catEmoji}</div><div class="card-body"><div class="card-tag">${r.tag} · ${r.category}</div><div class="card-title">${r.title}</div><div class="card-sub">${r.sub}</div>${cookBadge}<div class="card-pills">${pills.map(p=>`<span class="card-pill">${p}</span>`).join('')}</div></div>`;
@@ -1460,7 +1460,6 @@ function openDetail(id) {
     ? `<div class="no-steps">🍴 Cooking steps coming soon — we'll add these as we build out the cookbook!</div>`
     : r.steps.map((s,i)=>`<div class="step-row"><div class="step-num">${i+1}</div><div><div class="step-label">${s.title}</div><div class="step-text">${s.text}</div>${s.img?`<img class="step-img" src="${s.img}" alt="${s.title}" loading="lazy">`:''}  </div></div>`).join('');
   switchTab('ingredients', document.querySelector('.tab-btn'));
-  updateCookCountDisplay();
   show('detail');
   document.querySelector('#detail .detail-body').scrollTop = 0;
 }

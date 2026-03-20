@@ -57,7 +57,6 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
   position:sticky; bottom:0;
   background:white; border-top:1px solid var(--border);
   padding:12px 16px 14px;
-  display:flex; flex-direction:column; gap:8px;
 }
 .cook-cta .start-btn {
   width:100%; padding:15px;
@@ -68,28 +67,6 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
   transition:background 0.2s;
 }
 .cook-cta .start-btn:active { background:var(--rust); }
-.cook-count-display {
-  width:100%; display:flex; align-items:center;
-  justify-content:space-between;
-  background:rgba(193,59,24,0.06);
-  border:1.5px solid rgba(193,59,24,0.15);
-  border-radius:12px; padding:10px 14px;
-}
-.cook-count-label-group { display:flex; flex-direction:column; gap:1px; }
-.cook-count-lbl { font-size:9px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--rust); opacity:0.6; }
-.cook-count-num { font-family:var(--font-display); font-size:24px; font-weight:900; color:var(--rust); line-height:1; }
-.cook-adj-buttons { display:flex; align-items:center; gap:8px; }
-.cook-adj-btn {
-  width:36px; height:36px; border-radius:50%; border:none;
-  font-size:20px; font-weight:700; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  transition:all 0.15s; flex-shrink:0;
-}
-.cook-adj-btn.minus { background:rgba(193,59,24,0.12); color:var(--rust); }
-.cook-adj-btn.minus:active { background:rgba(193,59,24,0.25); transform:scale(0.92); }
-.cook-adj-btn.plus { background:var(--rust); color:white; }
-.cook-adj-btn.plus:active { background:#A03010; transform:scale(0.92); }
-.cook-adj-btn:disabled { opacity:0.25; cursor:default; }
 /* ── BADGE SYSTEM ── */
 .recipe-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; border-radius:50px; padding:2px 7px; margin-top:4px; }
 .badge-new     { background:rgba(100,160,100,0.15); color:#3A7A3A; }
@@ -435,6 +412,53 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 }
 .suggestion-link:active { background:var(--rust); }
 .suggestions-header { font-size:11px; color:#A09880; text-align:center; padding:8px 0 4px; letter-spacing:0.5px; }
+
+/* ── FILTER BAR ── */
+.filter-wrap {
+  flex-shrink:0; background:white;
+  border-bottom:1px solid var(--border);
+  padding:10px 14px 8px; display:flex; flex-direction:column; gap:8px;
+}
+.filter-pills {
+  display:flex; gap:6px; overflow-x:auto; scrollbar-width:none;
+  -webkit-overflow-scrolling:touch; padding-bottom:2px;
+}
+.filter-pills::-webkit-scrollbar { display:none; }
+.fpill {
+  flex-shrink:0; padding:6px 14px; border-radius:50px;
+  border:1.5px solid var(--border); font-size:11px; font-weight:600;
+  color:#7A7060; background:white; cursor:pointer; white-space:nowrap;
+  transition:all 0.15s; -webkit-user-select:none;
+}
+.fpill.active { background:var(--dark-brown); border-color:var(--dark-brown); color:white; }
+.fpill:active { transform:scale(0.95); }
+.filter-dropdowns { display:flex; gap:8px; }
+.fselect-wrap { flex:1; position:relative; }
+.fselect {
+  width:100%; padding:7px 28px 7px 10px; border-radius:8px;
+  border:1.5px solid var(--border); font-family:var(--font-body);
+  font-size:11px; font-weight:500; color:#7A7060; background:white;
+  cursor:pointer; appearance:none; -webkit-appearance:none;
+  outline:none; transition:border-color 0.15s;
+}
+.fselect.active { border-color:var(--rust); color:var(--rust); font-weight:600; }
+.fselect-arrow {
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  font-size:10px; color:#9A9080; pointer-events:none;
+}
+.filter-result-count {
+  font-size:10px; color:#A09880; padding:0 2px 2px;
+  letter-spacing:0.3px;
+}
+
+/* ── STAR FAVORITE ── */
+.star-btn {
+  background:none; border:none; cursor:pointer;
+  font-size:26px; line-height:1; padding:2px 4px;
+  transition:transform 0.2s; flex-shrink:0;
+  -webkit-user-select:none;
+}
+.star-btn:active { transform:scale(1.3); }
 </style>
 </head>
 <body>
@@ -445,12 +469,12 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
   <div class="cover-title">The Flavor<em>Terrorists</em></div>
   <div class="cover-divider"></div>
   <div class="cover-byline">A cookbook by<br><strong>Geoff &amp; Emily</strong></div>
-  <button class="cover-enter-btn" onclick="enterMood()">Let's cause some culinary chaos →</button>
+  <button class="cover-enter-btn" onclick="enterCookbook()">Let's cause some culinary chaos →</button>
   <div class="cover-recipe-count" id="cover-count"></div>
 </div>
 
 <!-- MOOD -->
-<div id="mood" class="screen hidden">
+<div id="mood" class="screen hidden" style="display:none!important">
   <div class="mood-header">
     <button class="mood-back" onclick="show('cover');buildHome()">← Back</button>
   </div>
@@ -510,13 +534,47 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
   <div class="home-header">
     <div class="eyebrow">A Personal Cookbook</div>
     <h1 class="home-title">The Flavor<br><em>Terrorists</em></h1>
-    <div class="home-meta"><span id="recipe-count-label">13 recipes</span><span></span>Geoff &amp; Emily</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="home-meta"><span id="recipe-count-label"></span><span></span>Geoff &amp; Emily</div>
+      <div style="display:flex;gap:6px;margin-left:8px">
+        <button id="hdr-all" onclick="switchView('all')" style="background:rgba(255,255,255,0.15);border:none;border-radius:50px;color:white;font-family:var(--font-body);font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;transition:all 0.15s">All</button>
+        <button id="hdr-fav" onclick="switchView('favorites')" style="background:rgba(255,255,255,0.08);border:none;border-radius:50px;color:rgba(255,255,255,0.6);font-family:var(--font-body);font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;transition:all 0.15s">⭐ Faves</button>
+        <button id="hdr-sug" onclick="switchView('suggestions')" style="background:rgba(255,255,255,0.08);border:none;border-radius:50px;color:rgba(255,255,255,0.6);font-family:var(--font-body);font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;transition:all 0.15s">💡 Ideas</button>
+      </div>
+    </div>
   </div>
-  <div class="mood-results-bar" id="mood-results-bar">
-    <button class="mrb-back" onclick="goBackToMood()">← Mood</button>
-    <span class="mrb-label" id="mrb-label"></span>
+  <div class="filter-wrap" id="filter-wrap">
+    <div class="filter-pills" id="filter-pills"></div>
+    <div class="filter-dropdowns">
+      <div class="fselect-wrap">
+        <select class="fselect" id="filter-difficulty" onchange="applyFilters()">
+          <option value="">Any Difficulty</option>
+          <option value="Easy">Easy</option>
+          <option value="Medium">Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
+        <span class="fselect-arrow">▾</span>
+      </div>
+      <div class="fselect-wrap">
+        <select class="fselect" id="filter-time" onchange="applyFilters()">
+          <option value="">Any Time</option>
+          <option value="quick">Quick (≤ 30 min)</option>
+          <option value="standard">Standard (30–45 min)</option>
+          <option value="commitment">Commitment (45 min+)</option>
+        </select>
+        <span class="fselect-arrow">▾</span>
+      </div>
+      <div class="fselect-wrap">
+        <select class="fselect" id="filter-sort" onchange="applyFilters()">
+          <option value="az">A → Z</option>
+        </select>
+        <span class="fselect-arrow">▾</span>
+      </div>
+    </div>
+    <div class="filter-result-count" id="filter-result-count"></div>
   </div>
-  <div class="tab-bar" id="home-tab-bar">
+  <!-- Tab bar kept for Favorites / Suggestions switching -->
+  <div class="tab-bar" id="home-tab-bar" style="display:none">
     <button class="tab-bar-btn active" onclick="setTab('all',this)">🍽 All</button>
     <button class="tab-bar-btn" onclick="setTab('favorites',this)">⭐ Favorites</button>
     <button class="tab-bar-btn" onclick="setTab('suggestions',this)">💡 Suggestions</button>
@@ -535,6 +593,7 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
       <div class="detail-title" id="d-title"></div>
       <div class="detail-sub" id="d-sub"></div>
     </div>
+    <button class="star-btn" id="star-btn" onclick="toggleStar()">☆</button>
   </div>
   <div class="detail-body">
     <div class="meta-strip" id="d-meta"></div>
@@ -555,16 +614,6 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
     </div>
   </div>
   <div class="cook-cta">
-    <div class="cook-count-display" id="cook-count-display">
-      <div class="cook-count-label-group">
-        <span class="cook-count-lbl">Times Made</span>
-        <span class="cook-count-num" id="cook-count-num">0</span>
-      </div>
-      <div class="cook-adj-buttons">
-        <button class="cook-adj-btn minus" id="cook-minus" onclick="adjustCook(-1)">−</button>
-        <button class="cook-adj-btn plus" id="cook-plus" onclick="adjustCook(1)">+</button>
-      </div>
-    </div>
     <button class="start-btn" onclick="startCooking()">🍳 &nbsp;Start Cooking</button>
   </div>
 </div>
@@ -586,7 +635,7 @@ body { font-family:var(--font-body); background:var(--cream); color:var(--charco
 <script>
 const RECIPES = [
   // ── ORIGINAL 13 ──────────────────────────────────────────────────────────
-  {id:'fajitas',tag:'Original',category:'Beef',title:'Fajitas with Grilled Pineapple & Peppers',sub:'Marinated flank steak, charred peppers & caramelized pineapple',image:'https://geofffrink.github.io/flavor-terrorists/fajitas.jpg',time:'45 min + 2–6 hr marinade',difficulty:'Medium',servings:'4–5',calories:'—',
+  {id:'fajitas',tag:'Original',category:'Steak',title:'Fajitas with Grilled Pineapple & Peppers',sub:'Marinated flank steak, charred peppers & caramelized pineapple',image:'https://geofffrink.github.io/flavor-terrorists/fajitas.jpg',time:'45 min + 2–6 hr marinade',difficulty:'Medium',servings:'4–5',calories:'—',
     ingredientGroups:[
       {label:'Marinade',items:[{amt:'¼ cup',name:'Worcestershire Sauce'},{amt:'3 cloves',name:'Garlic, minced'},{amt:'¼ cup',name:'Soy Sauce'},{amt:'2 tbsp',name:'Red Wine Vinegar'},{amt:'1 tbsp',name:'Dijon Mustard'}]},
       {label:'Fajitas',items:[{amt:'1½–2 lbs',name:'Flank Steak'},{amt:'1',name:'Green Bell Pepper, sliced'},{amt:'1',name:'Red Bell Pepper, sliced'},{amt:'1',name:'Yellow Bell Pepper, sliced'},{amt:'1 large',name:'Red Onion, sliced'},{amt:'1 cup',name:'Fresh Pineapple, sliced into strips'},{amt:'8–10',name:'Flour Tortillas'}]}
@@ -598,7 +647,7 @@ const RECIPES = [
       {title:'Warm the Tortillas',text:'Heat tortillas directly over a gas flame or in a dry skillet until warm and lightly toasted. Keep wrapped in a clean towel to stay warm.',img:null},
       {title:'Assemble the Fajitas',text:'Layer sliced steak, sautéed vegetables, and pineapple onto warm tortillas. Serve immediately.',img:null},
     ]},
-  {id:'tenderloin-orig',tag:'Original',category:'Beef',title:'Slow-Roasted Beef Tenderloin',sub:'Horseradish crust — simply perfect',image:'https://geofffrink.github.io/flavor-terrorists/tenderloin.jpg',time:'1 hr 15 min',difficulty:'Easy',servings:'6',calories:'—',
+  {id:'tenderloin-orig',tag:'Original',category:'Steak',title:'Slow-Roasted Beef Tenderloin',sub:'Horseradish crust — simply perfect',image:'https://geofffrink.github.io/flavor-terrorists/tenderloin.jpg',time:'1 hr 15 min',difficulty:'Easy',servings:'6',calories:'—',
     ingredientGroups:[
       {label:'Main',items:[{amt:'3–4 lbs',name:'Beef Tenderloin'},{amt:'generous',name:'Prepared Horseradish'},{amt:'to taste',name:'Salt & Pepper'}]}
     ],
@@ -665,7 +714,7 @@ const RECIPES = [
       {title:'Mash Potato',text:'Add sour cream to drained potato in pot. Mash until mostly smooth. Stir in half the scallions. Season with salt and pepper. Reheat briefly over medium-low if needed.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/590c7e50d56afa54087cb232-4-0-e96f93c6.jpg'},
       {title:'Plate & Serve',text:'Divide slaw and mashed potato between plates. Add chicken, letting excess sauce drip off before plating. Garnish with remaining scallions and serve.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/step/590c7e50d56afa54087cb232-5-0-52781c3e.jpg'},
     ]},
-  {id:'soy-steak',tag:'HelloFresh',category:'Beef',title:'Soy-Marinated Steak',sub:'with Peanut Sauce and Crispy Broccoli',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/w21-r2-f2cf4a72.jpg',time:'40 min',difficulty:'Easy',servings:'2',calories:'710 kcal',
+  {id:'soy-steak',tag:'HelloFresh',category:'Steak',title:'Soy-Marinated Steak',sub:'with Peanut Sauce and Crispy Broccoli',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/w21-r2-f2cf4a72.jpg',time:'40 min',difficulty:'Easy',servings:'2',calories:'710 kcal',
     ingredientGroups:[
       {label:'Produce & Grains',items:[{amt:'8 oz',name:'Broccoli Florets'},{amt:'½ cup',name:'Jasmine Rice'},{amt:'2',name:'Scallions'},{amt:'2 cloves',name:'Garlic'},{amt:'1',name:'Lime'}]},
       {label:'Proteins & Sauce',items:[{amt:'12 oz',name:'Beef Stir-Fry Strips'},{amt:'4 tbsp',name:'Soy Sauce'},{amt:'2 tbsp',name:'Peanut Butter'}]},
@@ -693,7 +742,7 @@ const RECIPES = [
       {title:'Cook Green Beans',text:'Microwave green beans in a covered bowl with a splash of water on high until just tender, about 2 minutes. Drain thoroughly, then cook in a drizzle of oil in a medium pan over medium-high heat until lightly crisped, 3–5 minutes. Season with salt, pepper, and a squeeze of lime.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5b6dfcf630006c7bd27889c2/step-f0e74a4a.jpg'},
       {title:'Plate & Serve',text:'Divide rice between plates. Top with green beans and chicken. Serve with remaining lime wedges on the side for squeezing over.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/5b6dfcf630006c7bd27889c2/step-a49e2502.jpg'},
     ]},
-  {id:'tenderloin-hf',tag:'HelloFresh',category:'Beef',title:'Beef Tenderloin with Tangy Shallot Sauce',sub:'plus Crispy Fingerlings & Broccoli Salad',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/beef-tenderloin-with-tangy-shallot-sauce-f1b8d9ae.jpg',time:'45 min',difficulty:'Medium',servings:'2',calories:'780 kcal',
+  {id:'tenderloin-hf',tag:'HelloFresh',category:'Steak',title:'Beef Tenderloin with Tangy Shallot Sauce',sub:'plus Crispy Fingerlings & Broccoli Salad',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/beef-tenderloin-with-tangy-shallot-sauce-f1b8d9ae.jpg',time:'45 min',difficulty:'Medium',servings:'2',calories:'780 kcal',
     ingredientGroups:[
       {label:'Produce',items:[{amt:'12 oz',name:'Fingerling Potatoes'},{amt:'8 oz',name:'Broccoli Florets'},{amt:'1',name:'Shallot'},{amt:'2 oz',name:'Mixed Greens'}]},
       {label:'Proteins & Sauce',items:[{amt:'10 oz',name:'Beef Tenderloin Filets'},{amt:'5 tsp',name:'Red Wine Vinegar'},{amt:'2 tsp',name:'Dijon Mustard'},{amt:'2',name:'Chicken Stock Concentrate'},{amt:'2',name:'Plum Jam'}]},
@@ -708,7 +757,7 @@ const RECIPES = [
       {title:'Make Shallot Sauce',text:'Heat a drizzle of oil in the pan used for beef over medium heat. Add chopped shallot and cook 1–2 minutes. Stir in jam, stock concentrates, remaining vinegar, and ¼ cup water. Simmer until slightly thickened, 2–3 minutes. Remove from heat and stir in 1 TBSP butter until melted. Season to taste.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/636038ca138672a0d706bfe2/step-fdd44879.jpg'},
       {title:'Finish & Serve',text:'Toss mixed greens with broccoli, pickled shallot (drained), and dressing. Thinly slice beef against the grain. Divide beef, potatoes, and salad between plates. Spoon sauce over beef.',img:'https://media.hellofresh.com/w_750,q_auto,f_auto,c_limit,fl_lossy/hellofresh_s3/636038ca138672a0d706bfe2/step-8a8f4d92.jpg'},
     ]},
-  {id:'tagliata',tag:'HelloFresh',category:'Beef',title:'Sliced Steak Tagliata',sub:'with Sweet Potatoes, Green Beans & Tomato Vinaigrette',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/sliced-steak-tagliata-cbc9ad8c.jpg',time:'30 min',difficulty:'Easy',servings:'2',calories:'670 kcal',
+  {id:'tagliata',tag:'HelloFresh',category:'Steak',title:'Sliced Steak Tagliata',sub:'with Sweet Potatoes, Green Beans & Tomato Vinaigrette',image:'https://media.hellofresh.com/q_100,w_3840,f_auto,c_limit,fl_lossy/recipes/image/sliced-steak-tagliata-cbc9ad8c.jpg',time:'30 min',difficulty:'Easy',servings:'2',calories:'670 kcal',
     ingredientGroups:[
       {label:'Produce',items:[{amt:'2',name:'Sweet Potatoes'},{amt:'¼ oz',name:'Rosemary'},{amt:'2 cloves',name:'Garlic'},{amt:'4 oz',name:'Grape Tomatoes'},{amt:'6 oz',name:'Green Beans'}]},
       {label:'Protein & Sauce',items:[{amt:'10 oz',name:'Ranch Steak'},{amt:'5 tsp',name:'Balsamic Vinegar'},{amt:'1',name:'Beef Stock Concentrate'}]},
@@ -752,7 +801,7 @@ const RECIPES = [
     ]},
 
   // ── NEW RECIPES FROM COOKBOOK PPTX ───────────────────────────────────────
-  {id:'smash-burgers',tag:'Original',category:'Beef',title:'Smash Burgers',sub:'Classic cast iron smash with special sauce',image:'https://geofffrink.github.io/flavor-terrorists/smash-burger.jpg',time:'20 min',difficulty:'Easy',servings:'4',calories:'—',
+  {id:'smash-burgers',tag:'Original',category:'Ground Beef',title:'Smash Burgers',sub:'Classic cast iron smash with special sauce',image:'https://geofffrink.github.io/flavor-terrorists/smash-burger.jpg',time:'20 min',difficulty:'Easy',servings:'4',calories:'—',
     ingredientGroups:[
       {label:'Burger',items:[{amt:'⅓ lb each',name:'85% Ground Beef (per patty)'},{amt:'as needed',name:'Shredded Lettuce'},{amt:'as needed',name:'Tomato, sliced'},{amt:'as needed',name:'Onion, sliced'},{amt:'as needed',name:'Cheese'},{amt:'as needed',name:'Burger Buns'}]},
       {label:'Special Sauce',items:[{amt:'to taste',name:'Mayonnaise'},{amt:'to taste',name:'Brown Mustard'},{amt:'to taste',name:'Ketchup'},{amt:'to taste',name:'Sweet Relish'},{amt:'to taste',name:'Minced Onion'}]}
@@ -886,7 +935,7 @@ const RECIPES = [
       {title:'Assemble & Serve',text:'Layer shredded salmon onto toasted tortillas. Top with pineapple salsa and a dollop of sour cream. Squeeze lemon over everything before eating.',img:null},
     ]},
 
-  {id:'beef-broccoli',tag:'Original',category:'Beef',title:'Beef & Broccoli',sub:'Soy-honey marinated flank steak with pineapple & cashews',image:'https://geofffrink.github.io/flavor-terrorists/beef-broccoli.jpg',time:'35 min',difficulty:'Medium',servings:'4',calories:'—',
+  {id:'beef-broccoli',tag:'Original',category:'Steak',title:'Beef & Broccoli',sub:'Soy-honey marinated flank steak with pineapple & cashews',image:'https://geofffrink.github.io/flavor-terrorists/beef-broccoli.jpg',time:'35 min',difficulty:'Medium',servings:'4',calories:'—',
     ingredientGroups:[
       {label:'Beef Marinade',items:[{amt:'1 lb',name:'Flank Steak, thinly sliced'},{amt:'1 tbsp',name:'Corn Starch'},{amt:'3 tbsp',name:'Soy Sauce'},{amt:'1 tbsp',name:'Honey'}]},
       {label:'Stir-Fry Sauce',items:[{amt:'½ cup',name:'Chicken or Beef Broth'},{amt:'3 tbsp',name:'Soy Sauce'},{amt:'2 tbsp',name:'Brown Sugar'},{amt:'1 tbsp',name:'Corn Starch'}]},
@@ -941,7 +990,7 @@ const RECIPES = [
       {title:'Assemble & Serve',text:'Place chicken on each tortilla, then top with slaw and sliced avocado. Serve with lime wedges.',img:null},
     ]},
 
-  {id:'ny-strip-chimichurri',tag:'Original',category:'Beef',title:"Clark's NY Strip with Red Chimichurri",sub:'Marinated strip steak, sautéed onions & red chimichurri',image:'https://geofffrink.github.io/flavor-terrorists/ny-strip.jpg',time:'40 min + 2 hr marinade',difficulty:'Medium',servings:'2',calories:'—',
+  {id:'ny-strip-chimichurri',tag:'Original',category:'Steak',title:"Clark's NY Strip with Red Chimichurri",sub:'Marinated strip steak, sautéed onions & red chimichurri',image:'https://geofffrink.github.io/flavor-terrorists/ny-strip.jpg',time:'40 min + 2 hr marinade',difficulty:'Medium',servings:'2',calories:'—',
     ingredientGroups:[
       {label:'Steak & Marinade',items:[{amt:'2',name:'NY Strip Steaks'},{amt:'2 tbsp',name:'Worcestershire Sauce'},{amt:'2 cloves',name:'Garlic, minced'},{amt:'2 tbsp',name:'Soy Sauce'},{amt:'1 tbsp',name:'White Wine Vinegar'},{amt:'1 tsp',name:'Dijon Mustard'}]},
       {label:'Red Chimichurri',items:[{amt:'1 bunch',name:'Fresh Parsley'},{amt:'1 bunch',name:'Fresh Oregano'},{amt:'3 cloves',name:'Garlic'},{amt:'½ cup',name:'Olive Oil'},{amt:'2 tbsp',name:'Red Wine Vinegar'},{amt:'1 tsp',name:'Red Pepper Flakes'},{amt:'to taste',name:'Salt'}]},
@@ -968,7 +1017,7 @@ const RECIPES = [
       {title:'Assemble & Serve',text:'Spoon the warm chicken filling into butter lettuce leaves. Garnish with remaining green onions. Serve immediately with dipping sauce on the side.',img:null},
 ]},
 
-  {id:'chicago-hot-dog',tag:'Original',category:'Beef',title:'Chicago Hot Dog',sub:'Poppy seed bun, all the fixings — never ketchup',image:'https://geofffrink.github.io/flavor-terrorists/chicago-hot-dog.jpg',time:'10 min',difficulty:'Easy',servings:'4',calories:'—',
+  {id:'chicago-hot-dog',tag:'Original',category:'Ground Beef',title:'Chicago Hot Dog',sub:'Poppy seed bun, all the fixings — never ketchup',image:'https://geofffrink.github.io/flavor-terrorists/chicago-hot-dog.jpg',time:'10 min',difficulty:'Easy',servings:'4',calories:'—',
     ingredientGroups:[
       {label:'The Dog',items:[{amt:'4',name:'All-Beef Franks'},{amt:'4',name:'Poppy Seed Hot Dog Buns'},{amt:'to taste',name:'Yellow Mustard'},{amt:'to taste',name:'Green Sweet Relish'},{amt:'to taste',name:'Sweet Onion, diced'},{amt:'2',name:'Tomatoes, cut into wedges'},{amt:'4 spears',name:'Dill Pickle Spears'},{amt:'NO',name:'Ketchup (this is Chicago)'}]}
     ],
@@ -980,7 +1029,7 @@ const RECIPES = [
 ]},
 
 
-  {id:'steak-bites',tag:'Original',category:'Beef',title:'Garlic Butter Steak Bites',sub:'Cajun-seared in cast iron with parmesan cream sauce',image:'https://geofffrink.github.io/flavor-terrorists/steak-bites.jpg',time:'20 min',difficulty:'Easy',servings:'4',calories:'—',
+  {id:'steak-bites',tag:'Original',category:'Steak',title:'Garlic Butter Steak Bites',sub:'Cajun-seared in cast iron with parmesan cream sauce',image:'https://geofffrink.github.io/flavor-terrorists/steak-bites.jpg',time:'20 min',difficulty:'Easy',servings:'4',calories:'—',
     ingredientGroups:[
         {label:'Steak',items:[{amt:'1½ lbs',name:'Filet, Ribeye, or Sirloin, cut into 2-3 inch pieces'},{amt:'4 tbsp',name:'Avocado Oil'},{amt:'to taste',name:'Cajun Seasoning'}]},
     {label:'Garlic Butter',items:[{amt:'4 tbsp',name:'Salted Butter'},{amt:'10 cloves',name:'Garlic, minced'},{amt:'3',name:'Green Onions, sliced'},{amt:'2 tbsp',name:'Fresh Parsley, chopped'}]},
@@ -1070,15 +1119,9 @@ const RECIPES = [
     ]},
 ];
 
-let current = null, cookStep = 0, activeTab = 'all';
+let current = null, cookStep = 0, activeTab = 'all', activeProtein = 'All';
 // tabs: all | favorites | explore
 
-function getCooks(id) {
-  return parseInt(localStorage.getItem('cooks_'+id)||'0');
-}
-function setCooks(id, n) {
-  localStorage.setItem('cooks_'+id, n);
-}
 
 const SUGGESTIONS = [
   {title:"Birria Tacos",cuisine:"Mexican · Beef",rating:"⭐⭐⭐⭐⭐ 4.9",desc:"Slow-braised beef in a rich chile broth, served in crispy cheese-fried tortillas with consommé for dipping. A serious weekend project worth every minute.",url:"https://www.seriouseats.com/birria-tacos-recipe",img:"https://images.unsplash.com/photo-1624300629298-e9de39c13be5?w=800&q=80"},
@@ -1219,10 +1262,166 @@ function surpriseMe() {
 
 function enterCookbook() {
   show('home');
-  renderGrid();
+  buildFilterPills();
+  switchView('all');
 }
 
-function buildHome() { renderGrid(); }
+// ── STAR / FAVORITES ────────────────────────────────────────────────────────
+function isStarred(id) { return localStorage.getItem('star_' + id) === '1'; }
+function setStarred(id, val) {
+  if (val) localStorage.setItem('star_' + id, '1');
+  else localStorage.removeItem('star_' + id);
+}
+function updateStarBtn() {
+  if (!current) return;
+  const btn = document.getElementById('star-btn');
+  if (btn) btn.textContent = isStarred(current.id) ? '⭐' : '☆';
+}
+function toggleStar() {
+  if (!current) return;
+  setStarred(current.id, !isStarred(current.id));
+  updateStarBtn();
+}
+
+function getCardBadge(n) { return ''; } // stub — no longer used for display
+
+const PROTEINS = ['All','Steak','Chicken','Pork','Ground Beef','Turkey','Seafood','Pasta','Veggie & Sides'];
+
+function buildFilterPills() {
+  const bar = document.getElementById('filter-pills');
+  if (!bar) return;
+  bar.innerHTML = PROTEINS.map(p =>
+    `<button class="fpill${p==='All'?' active':''}" onclick="setProtein('${p}',this)">${p==='All'?'🍽 All':p}</button>`
+  ).join('');
+}
+
+function setProtein(p, btn) {
+  activeProtein = p;
+  document.querySelectorAll('.fpill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function getMinutes(timeStr) {
+  if (!timeStr || timeStr === '—') return 999;
+  const m = timeStr.match(/(\d+)/);
+  return m ? parseInt(m[1]) : 999;
+}
+
+function applyFilters() {
+  const diff = document.getElementById('filter-difficulty')?.value || '';
+  const time = document.getElementById('filter-time')?.value || '';
+  const sort = document.getElementById('filter-sort')?.value || 'az';
+
+  // Style selects
+  ['filter-difficulty','filter-time','filter-sort'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', el.value !== '' && id !== 'filter-sort');
+  });
+
+  let filtered = RECIPES.map(r => ({...r, cooks: 0}));
+
+  // Protein filter
+  if (activeProtein !== 'All') {
+    if (activeProtein === 'Veggie & Sides') {
+      filtered = filtered.filter(r => r.category === 'Vegetarian' || r.category === 'Sides');
+    } else {
+      filtered = filtered.filter(r => r.category === activeProtein);
+    }
+  }
+
+  // Difficulty filter
+  if (diff) filtered = filtered.filter(r => r.difficulty === diff);
+
+  // Time filter
+  if (time) {
+    filtered = filtered.filter(r => {
+      const mins = getMinutes(r.time);
+      if (time === 'quick') return mins <= 30;
+      if (time === 'standard') return mins > 30 && mins <= 45;
+      if (time === 'commitment') return mins > 45;
+      return true;
+    });
+  }
+
+  // Sort
+  filtered = filtered.sort((a,b) => a.title.localeCompare(b.title));
+
+  const countEl = document.getElementById('filter-result-count');
+  if (countEl) countEl.textContent = filtered.length === RECIPES.length
+    ? `${RECIPES.length} recipes`
+    : `${filtered.length} of ${RECIPES.length} recipes`;
+
+  document.getElementById('recipe-count-label').textContent = RECIPES.length + ' recipes';
+
+  const grid = document.getElementById('recipe-grid');
+  grid.style.gridTemplateColumns = '';
+  grid.innerHTML = '';
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">🤷</div><div class="es-title">No matches</div><div class="es-sub">Try adjusting your filters.</div></div>`;
+    return;
+  }
+
+  filtered.forEach(r => {
+    const card = document.createElement('div');
+    card.className = `recipe-card cat-${r.category.replace(/ /g,'-')}`;
+    card.onclick = () => openDetail(r.id);
+    const catEmoji = {'Steak':'🥩','Chicken':'🍗','Pork':'🐷','Seafood':'🦐','Turkey':'🦃','Vegetarian':'🥗','Pasta':'🍝','Sides':'🥣','Ground Beef':'🍔'}[r.category]||'🍴';
+    const cookBadge = getCardBadge(r.cooks);
+    const noteBadge = '';
+    const pills = [r.time ? `⏱ ${r.time}` : null, r.calories && r.calories !== '—' ? `🔥 ${r.calories}` : null].filter(Boolean);
+    card.innerHTML = `<img class="card-img" src="${r.image}" alt="${r.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="img-placeholder" style="display:none">${catEmoji}</div><div class="card-body"><div class="card-tag">${r.tag} · ${r.category}</div><div class="card-title">${r.title}</div><div class="card-sub">${r.sub}</div>${cookBadge}${noteBadge}<div class="card-pills">${pills.map(p=>`<span class="card-pill">${p}</span>`).join('')}</div></div>`;
+    grid.appendChild(card);
+  });
+}
+
+function switchView(view) {
+  activeTab = view;
+  const fw = document.getElementById('filter-wrap');
+  const grid = document.getElementById('recipe-grid');
+
+  ['hdr-all','hdr-fav','hdr-sug'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isActive = (id === 'hdr-' + view) || (id === 'hdr-all' && view === 'all');
+    el.style.background = isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)';
+    el.style.color = isActive ? 'white' : 'rgba(255,255,255,0.6)';
+  });
+
+  if (view === 'all') {
+    if (fw) fw.style.display = '';
+    applyFilters();
+  } else if (view === 'favorites') {
+    if (fw) fw.style.display = 'none';
+    grid.style.gridTemplateColumns = '';
+    grid.innerHTML = '';
+    const favs = RECIPES.filter(r => isStarred(r.id)).sort((a,b) => a.title.localeCompare(b.title));
+    document.getElementById('recipe-count-label').textContent = RECIPES.length + ' recipes';
+    if (favs.length === 0) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">⭐</div><div class="es-title">No favorites yet</div><div class="es-sub">Cook a recipe and tap the counter to log it here.</div></div>`;
+      return;
+    }
+    favs.forEach(r => {
+      const card = document.createElement('div');
+      card.className = `recipe-card cat-${r.category.replace(/ /g,'-')}`;
+      card.onclick = () => openDetail(r.id);
+      const catEmoji = {'Steak':'🥩','Chicken':'🍗','Pork':'🐷','Seafood':'🦐','Turkey':'🦃','Vegetarian':'🥗','Pasta':'🍝','Sides':'🥣','Ground Beef':'🍔'}[r.category]||'🍴';
+      const cookBadge = getCardBadge(r.cooks);
+      const pills = [r.time ? `⏱ ${r.time}` : null].filter(Boolean);
+      card.innerHTML = `<img class="card-img" src="${r.image}" alt="${r.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="img-placeholder" style="display:none">${catEmoji}</div><div class="card-body"><div class="card-tag">${r.tag} · ${r.category}</div><div class="card-title">${r.title}</div><div class="card-sub">${r.sub}</div>${cookBadge}<div class="card-pills">${pills.map(p=>`<span class="card-pill">${p}</span>`).join('')}</div></div>`;
+      grid.appendChild(card);
+    });
+  } else if (view === 'suggestions') {
+    if (fw) fw.style.display = 'none';
+    renderSuggestions();
+  }
+}
+
+function buildHome() {
+  buildFilterPills();
+  switchView('all');
+}
 
 function setTab(tab, btn) {
   activeTab = tab;
@@ -1233,46 +1432,7 @@ function setTab(tab, btn) {
   renderGrid();
 }
 
-function renderGrid() {
-  const grid = document.getElementById('recipe-grid');
-  grid.innerHTML = '';
-
-  let filtered = RECIPES.map(r => ({...r, cooks: getCooks(r.id)}));
-
-  if (activeTab === 'favorites') {
-    filtered = filtered.filter(r => r.cooks > 0).sort((a,b) => b.cooks - a.cooks);
-  } else if (activeTab === 'suggestions') {
-    // Rendered separately
-    renderSuggestions();
-    return;
-  } else {
-    filtered = filtered.sort((a,b) => a.title.localeCompare(b.title));
-  }
-
-  document.getElementById('recipe-count-label').textContent = `${RECIPES.length} recipes`;
-
-  if (filtered.length === 0) {
-    const msgs = {
-      favorites: ['⭐', 'No favorites yet', 'Cook a recipe and tap the counter on the detail page to log it here.'],
-    };
-    const [icon, title, sub] = msgs[activeTab] || ['🍴','Nothing here','Try a different tab.'];
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">${icon}</div><div class="es-title">${title}</div><div class="es-sub">${sub}</div></div>`;
-    return;
-  }
-
-  filtered.forEach((r) => {
-    const card = document.createElement('div');
-    card.className = `recipe-card cat-${r.category}`;
-    card.onclick = () => openDetail(r.id);
-    const catEmoji = {Beef:'🥩',Chicken:'🍗',Pork:'🐷',Seafood:'🦐',Turkey:'🦃',Vegetarian:'🥗',Pasta:'🍝',Sides:'🥣'}[r.category]||'🍴';
-    const cookBadge = getCardBadge(r.cooks);
-    const hasNote = localStorage.getItem('note_' + r.id);
-    const noteBadge = hasNote ? '<div class="recipe-badge badge-new" style="margin-top:3px">📝 Notes</div>' : '';
-    const pills = [r.time ? `⏱ ${r.time}` : null, r.calories && r.calories !== '—' ? `🔥 ${r.calories}` : null].filter(Boolean);
-    card.innerHTML = `<img class="card-img" src="${r.image}" alt="${r.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="img-placeholder" style="display:none">${catEmoji}</div><div class="card-body"><div class="card-tag">${r.tag} · ${r.category}</div><div class="card-title">${r.title}</div><div class="card-sub">${r.sub}</div>${cookBadge}<div class="card-pills">${pills.map(p=>`<span class="card-pill">${p}</span>`).join('')}</div></div>`;
-    grid.appendChild(card);
-  });
-}
+function renderGrid() { applyFilters(); }
 
 
 
@@ -1338,48 +1498,15 @@ function switchTab(name, btn) {
   if (name === 'notes') loadNotes();
 }
 
-function getBadge(n) {
-  if (n === 0) return '<span class="recipe-badge badge-new">✨ Never made</span>';
-  if (n < 3)  return '<span class="recipe-badge badge-regular">🍳 Making it</span>';
-  if (n < 7)  return '<span class="recipe-badge badge-regular">🔥 Regular</span>';
-  if (n < 15) return '<span class="recipe-badge badge-fave">⭐ Favorite</span>';
-  return '<span class="recipe-badge badge-legend">👑 Legend</span>';
-}
 
-function getCardBadge(n) {
-  if (n === 0) return '';
-  if (n < 3)  return `<div class="recipe-badge badge-regular" style="margin-top:3px">🍳 ${n}×</div>`;
-  if (n < 7)  return `<div class="recipe-badge badge-regular" style="margin-top:3px">🔥 ${n}×</div>`;
-  if (n < 15) return `<div class="recipe-badge badge-fave" style="margin-top:3px">⭐ ${n}×</div>`;
-  return `<div class="recipe-badge badge-legend" style="margin-top:3px">👑 ${n}×</div>`;
-}
 
-function updateCookCountDisplay() {
-  if (!current) return;
-  const n = getCooks(current.id);
-  document.getElementById('cook-count-num').textContent = n;
-  document.getElementById('cook-minus').disabled = n === 0;
-}
 
-function adjustCook(delta) {
-  if (!current) return;
-  const n = Math.max(0, getCooks(current.id) + delta);
-  setCooks(current.id, n);
-  updateCookCountDisplay();
-  const el = document.getElementById('cook-count-num');
-  el.style.transform = delta > 0 ? 'scale(1.4)' : 'scale(0.75)';
-  el.style.transition = 'transform 0.15s';
-  setTimeout(() => { el.style.transform = 'scale(1)'; }, 200);
-  renderGrid();
-}
 
-function goHome() { show('mood'); enterMood(); }
+function goHome() { show('home'); switchView('all'); }
 
 function goBackToMood() {
-  document.getElementById('mood-results-bar').classList.remove('visible');
-  document.getElementById('home-tab-bar').style.display = '';
-  show('mood');
-  enterMood();
+  show('home');
+  switchView('all');
 }
 
 function showMoodResultsBar(label) {
